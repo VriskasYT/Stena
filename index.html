@@ -236,7 +236,43 @@
             color: var(--text-secondary) !important;
         }
         
-        /* Light theme is DEFAULT - no special styles needed */
+        /* Light theme is DEFAULT - explicit colors */
+        body:not(.dark-theme) {
+            background: #f0f2f5 !important;
+        }
+        body:not(.dark-theme) .card,
+        body:not(.dark-theme) .modal,
+        body:not(.dark-theme) .auth-card,
+        body:not(.dark-theme) .nav-menu,
+        body:not(.dark-theme) .chat-window,
+        body:not(.dark-theme) .mobile-nav {
+            background: white !important;
+        }
+        body:not(.dark-theme) .post-text,
+        body:not(.dark-theme) .post-author,
+        body:not(.dark-theme) .card-header h3,
+        body:not(.dark-theme) .profile-name,
+        body:not(.dark-theme) h1, body:not(.dark-theme) h2, body:not(.dark-theme) h3,
+        body:not(.dark-theme) label,
+        body:not(.dark-theme) .form-group label,
+        body:not(.dark-theme) .chat-name {
+            color: #1e293b !important;
+        }
+        body:not(.dark-theme) .form-control,
+        body:not(.dark-theme) input,
+        body:not(.dark-theme) textarea {
+            background: white !important;
+            color: #1e293b !important;
+            border-color: #e2e8f0 !important;
+        }
+        body:not(.dark-theme) .auth-logo h1 {
+            color: #6366f1 !important;
+        }
+        body:not(.dark-theme) .auth-logo p,
+        body:not(.dark-theme) .auth-switch,
+        body:not(.dark-theme) .auth-divider {
+            color: #64748b !important;
+        }
         
         /* Spin animation for loading */
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -2347,7 +2383,15 @@
             loadNotifications();
             loadOnlineFriends();
             loadRecommendations();
+            loadCommunities();
+            loadPhotos();
+            loadMusic();
+            loadNotifSettings();
+            loadFullNotifications();
+            listenForCalls();
+            listenForNotifications();
             loadProfileTelegramWidget();
+            updateBadges();
             
             window.location.hash = 'feed';
             
@@ -4064,12 +4108,7 @@
             });
         }
         
-        // Update showSection to use mobile nav
-        const originalShowSection = showSection;
-        showSection = function(sectionId) {
-            originalShowSection(sectionId);
-            updateMobileNav(sectionId);
-        };
+        // Mobile nav update is already handled in showSection
         
         // ============ LOAD ADDITIONAL DATA ============
         function loadCommunities() {
@@ -4239,17 +4278,11 @@
             });
         }
         
-        // Extend loginSuccess
-        const extendLoginSuccess = function() {
-            loadNotifSettings();
-            loadProfileTelegramWidget();
-            loadFullNotifications();
-            listenForCalls();
-            loadCommunities();
-            loadPhotos();
-            loadMusic();
+        // Badges update function
+        function updateBadges() {
+            if (!currentUser) return;
             
-            // Update badges
+            // Notification badges
             db.ref('notifications/' + currentUser.id).on('value', snapshot => {
                 let count = 0;
                 snapshot.forEach(child => { if (!child.val().read) count++; });
@@ -4267,7 +4300,7 @@
                 }
             });
             
-            // Load unread messages count
+            // Message badges
             db.ref('chats').orderByChild('participants/' + currentUser.id).equalTo(true).on('value', snapshot => {
                 let unreadCount = 0;
                 snapshot.forEach(child => {
@@ -4294,14 +4327,9 @@
                     sidebarMsgBadge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
                 }
             });
-        };
+        }
         
-        // Call after original loginSuccess
-        const origLoginSuccess = loginSuccess;
-        loginSuccess = function() {
-            origLoginSuccess();
-            setTimeout(extendLoginSuccess, 100);
-        };
+        // extendLoginSuccess is called directly in loginSuccess
         
         // Listen for real-time notifications
         function listenForNotifications() {
