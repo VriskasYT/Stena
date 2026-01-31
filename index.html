@@ -2016,6 +2016,11 @@
             // Set theme based on time
             setThemeByTime();
             
+            // FALLBACK: Always hide loading screen after 3 seconds max
+            const loadingTimeout = setTimeout(() => {
+                hideLoadingScreen();
+            }, 3000);
+            
             // Load Telegram widgets with delay to ensure DOM is ready
             setTimeout(() => {
                 loadTelegramWidget('telegramLoginWidget');
@@ -2028,6 +2033,7 @@
                 try {
                     currentUser = JSON.parse(savedUser);
                     db.ref('users/' + currentUser.id).once('value').then(snapshot => {
+                        clearTimeout(loadingTimeout);
                         if (snapshot.exists()) {
                             currentUser = {...snapshot.val(), id: currentUser.id};
                             loginSuccess();
@@ -2037,15 +2043,18 @@
                         }
                     }).catch((err) => {
                         console.error('Firebase error:', err);
+                        clearTimeout(loadingTimeout);
                         hideLoadingScreen();
                     });
                 } catch (e) {
                     console.error('Parse error:', e);
                     localStorage.removeItem('chegoStenaUser');
+                    clearTimeout(loadingTimeout);
                     hideLoadingScreen();
                 }
             } else {
                 // No saved user - hide loading screen immediately and show auth
+                clearTimeout(loadingTimeout);
                 hideLoadingScreen();
             }
 
