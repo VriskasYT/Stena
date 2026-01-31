@@ -1274,24 +1274,32 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen - ПОЛНОСТЬЮ ПРОСТАЯ ВЕРСИЯ -->
-    <div id="loadingScreen" style="position:fixed;inset:0;background:linear-gradient(135deg,#6366f1,#8b5cf6);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" style="position:fixed;inset:0;background:linear-gradient(135deg,#6366f1,#8b5cf6);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.3s ease;">
         <div style="font-size:48px;color:white;margin-bottom:24px;"><i class="fas fa-layer-group"></i> ЧегоСтена</div>
         <div style="width:50px;height:50px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 1s linear infinite;"></div>
     </div>
     <script>
-        // ГАРАНТИРОВАННО скрыть загрузку через 1 секунду
+        // Функция для скрытия загрузки
+        function hideLoadingScreen() {
+            var ls = document.getElementById('loadingScreen');
+            if (ls) {
+                ls.style.opacity = '0';
+                ls.style.pointerEvents = 'none';
+                setTimeout(function() {
+                    ls.style.display = 'none';
+                    ls.remove(); // Полностью удаляем из DOM
+                }, 300);
+            }
+        }
+        
+        // Скрыть через 1 секунду после загрузки страницы
         window.addEventListener('load', function() {
-            setTimeout(function() {
-                var l = document.getElementById('loadingScreen');
-                if (l) l.style.display = 'none';
-            }, 800);
+            setTimeout(hideLoadingScreen, 800);
         });
-        // Резервный таймер - скрыть через 2 секунды в любом случае
-        setTimeout(function() {
-            var l = document.getElementById('loadingScreen');
-            if (l) l.style.display = 'none';
-        }, 2000);
+        
+        // Резервный таймер - скрыть через 2.5 секунды в любом случае
+        setTimeout(hideLoadingScreen, 2500);
     </script>
 
     <!-- Auth Screen -->
@@ -1316,7 +1324,11 @@
                 
                 <div class="auth-divider">или</div>
                 
-                <div id="telegramLoginWidget" style="display: flex; justify-content: center;"></div>
+                <div id="telegramLoginWidget" style="display: flex; justify-content: center; min-height: 50px; align-items: center;">
+                    <button class="telegram-btn" onclick="openTelegramAuth()" style="display: none;" id="tgFallbackBtn1">
+                        <i class="fab fa-telegram"></i> Войти через Telegram
+                    </button>
+                </div>
                 
                 <div class="auth-switch">
                     Нет аккаунта? <a href="#register" onclick="showRegister()">Зарегистрироваться</a>
@@ -1362,7 +1374,11 @@
                 
                 <div class="auth-divider">или</div>
                 
-                <div id="telegramRegWidget" style="display: flex; justify-content: center;"></div>
+                <div id="telegramRegWidget" style="display: flex; justify-content: center; min-height: 50px; align-items: center;">
+                    <button class="telegram-btn" onclick="openTelegramAuth()" style="display: none;" id="tgFallbackBtn2">
+                        <i class="fab fa-telegram"></i> Регистрация через Telegram
+                    </button>
+                </div>
                 
                 <div class="auth-switch">
                     Уже есть аккаунт? <a href="#login" onclick="showLogin()">Войти</a>
@@ -2027,7 +2043,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // Firebase Configuration
+        // Firebase Configuration - Realtime Database only
         const firebaseConfig = {
             apiKey: "AIzaSyAQe5UUx7HkkF98Lo-j0KCufdPmQzzZySs",
             authDomain: "tanchiki-45b4e.firebaseapp.com",
@@ -2035,7 +2051,7 @@
             projectId: "tanchiki-45b4e",
             storageBucket: "tanchiki-45b4e.firebasestorage.app",
             messagingSenderId: "152159817482",
-            appId: "1:152159817482:web:f4c9fafe7989544e33f4f3"
+            appId: "1:152159817482:web:2c9ac15b4859c33a33f4f3"
         };
 
         // Initialize Firebase
@@ -2074,26 +2090,56 @@
             });
         };
 
-        // Load Telegram Widget
+        // Load Telegram Widget with fallback
         function loadTelegramWidget(containerId) {
             const container = document.getElementById(containerId);
-            if (container) {
-                container.innerHTML = '';
-                const script = document.createElement('script');
-                script.async = true;
-                script.src = 'https://telegram.org/js/telegram-widget.js?22';
-                script.setAttribute('data-telegram-login', 'VriskasHelperBot');
-                script.setAttribute('data-size', 'large');
-                script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-                script.setAttribute('data-request-access', 'write');
-                container.appendChild(script);
-            }
+            if (!container) return;
+            
+            // Keep fallback button but hide it initially
+            const fallbackBtn = container.querySelector('button');
+            
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://telegram.org/js/telegram-widget.js?22';
+            script.setAttribute('data-telegram-login', 'VriskasHelperBot');
+            script.setAttribute('data-size', 'large');
+            script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+            script.setAttribute('data-request-access', 'write');
+            
+            script.onerror = function() {
+                // Show fallback button if widget fails
+                if (fallbackBtn) fallbackBtn.style.display = 'flex';
+            };
+            
+            container.insertBefore(script, fallbackBtn);
+            
+            // Show fallback after timeout if iframe not created
+            setTimeout(function() {
+                const iframe = container.querySelector('iframe');
+                if (!iframe && fallbackBtn) {
+                    fallbackBtn.style.display = 'flex';
+                }
+            }, 3000);
+        }
+        
+        // Fallback - open Telegram directly
+        function openTelegramAuth() {
+            window.open('https://t.me/VriskasHelperBot?start=auth', '_blank');
+            alert('После авторизации в Telegram боте, обновите страницу');
         }
 
-        // Simple hide loading function
+        // Hide loading function - multiple methods to ensure it works
         function hideLoading() {
             var l = document.getElementById('loadingScreen');
-            if (l) l.style.display = 'none';
+            if (l) {
+                l.style.opacity = '0';
+                l.style.pointerEvents = 'none';
+                l.style.zIndex = '-1';
+                setTimeout(function() {
+                    l.style.display = 'none';
+                    if (l.parentNode) l.parentNode.removeChild(l);
+                }, 300);
+            }
         }
 
         // Initialize App
