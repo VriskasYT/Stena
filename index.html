@@ -2,8 +2,17 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ЧегоСтена - Социальная сеть</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ЧегоСтена - Социальная сеть нового поколения</title>
+    <meta name="description" content="ЧегоСтена - современная социальная сеть для общения, обмена фото и видео. Присоединяйтесь!">
+    <meta name="keywords" content="ЧегоСтена, социальная сеть, общение, друзья, фото, видео, чат">
+    <meta name="author" content="ЧегоСтена">
+    <meta property="og:title" content="ЧегоСтена - Социальная сеть">
+    <meta property="og:description" content="Современная социальная сеть для общения и обмена контентом">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vriskasyt.github.io/Stena/">
+    <meta name="theme-color" content="#5181b8">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%235181b8'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3EЧ%3C/text%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -121,17 +130,54 @@
         @keyframes callWave { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
         
         :root {
-            --primary: #5181b8;
-            --primary-dark: #3f6da5;
-            --bg-dark: #1a1a2e;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --bg-dark: #0f172a;
             --bg-card: #ffffff;
-            --text: #333;
-            --text-secondary: #656565;
-            --border: #dce1e6;
-            --success: #4bb34b;
-            --danger: #e64646;
-            --warning: #ffa000;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --accent: #8b5cf6;
         }
+        
+        /* Dark theme based on time */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-card: #1e293b;
+                --text: #f1f5f9;
+                --text-secondary: #94a3b8;
+                --border: #334155;
+            }
+            body { background: #0f172a; }
+        }
+        
+        body.dark-theme {
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            background: #0f172a !important;
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        .loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loading-logo { font-size: 48px; color: white; margin-bottom: 24px; animation: pulse 1.5s infinite; }
+        .loading-logo i { margin-right: 12px; }
+        .loading-spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: rgba(255,255,255,0.9); margin-top: 20px; font-size: 14px; }
 
         /* Модальные окна */
         .modal-overlay {
@@ -1130,6 +1176,13 @@
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-logo"><i class="fas fa-layer-group"></i>ЧегоСтена</div>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Загрузка...</div>
+    </div>
+
     <!-- Auth Screen -->
     <div id="authScreen" class="auth-screen active">
         <div class="auth-card">
@@ -1246,29 +1299,29 @@
     <!-- Main App -->
     <div id="mainApp" style="display: none;">
         <!-- Mobile Bottom Navigation -->
-        <nav class="mobile-nav">
+        <nav class="mobile-nav" id="mobileNav">
             <div class="mobile-nav-inner">
-                <a class="mobile-nav-item active" onclick="showSection('feed')" data-section="feed">
+                <a class="mobile-nav-item active" data-section="feed" onclick="event.preventDefault(); showSection('feed')">
                     <i class="fas fa-home"></i>
                     <span>Главная</span>
                 </a>
-                <a class="mobile-nav-item" onclick="showSection('messages')" data-section="messages">
+                <a class="mobile-nav-item" data-section="messages" onclick="event.preventDefault(); showSection('messages')">
                     <i class="fas fa-comment"></i>
                     <span>Чаты</span>
                     <span class="badge" id="mobileMsgBadge" style="display: none;">0</span>
                 </a>
-                <a class="mobile-nav-item" onclick="showSection('friends')" data-section="friends">
-                    <i class="fas fa-users"></i>
-                    <span>Друзья</span>
+                <a class="mobile-nav-item" data-section="profile" onclick="event.preventDefault(); showSection('profile')">
+                    <i class="fas fa-plus-circle" style="font-size: 28px; color: var(--primary);"></i>
+                    <span>Пост</span>
                 </a>
-                <a class="mobile-nav-item" onclick="showSection('notifications')" data-section="notifications">
+                <a class="mobile-nav-item" data-section="notifications" onclick="event.preventDefault(); showSection('notifications')">
                     <i class="fas fa-bell"></i>
                     <span>Уведом.</span>
                     <span class="badge" id="mobileNotifBadge" style="display: none;">0</span>
                 </a>
-                <a class="mobile-nav-item" onclick="showSection('profile')" data-section="profile">
-                    <i class="fas fa-user"></i>
-                    <span>Профиль</span>
+                <a class="mobile-nav-item" data-section="settings" onclick="event.preventDefault(); showSection('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Ещё</span>
                 </a>
             </div>
         </nav>
@@ -1352,36 +1405,32 @@
             <main id="contentArea">
                 <!-- Feed Section -->
                 <div id="feedSection" class="section active">
-                    <!-- Create Post -->
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="create-post">
-                                <img id="createPostAvatar" src="https://i.pravatar.cc/100?img=1" alt="">
-                                <div class="create-post-input">
-                                    <textarea id="postText" placeholder="Что у вас нового?" rows="2"></textarea>
-                                    <div class="create-post-actions">
-                                        <div class="create-post-btns">
-                                            <button onclick="document.getElementById('postImage').click()">
-                                                <i class="fas fa-image"></i> Фото
-                                            </button>
-                                            <input type="file" id="postImage" accept="image/*" style="display: none;" onchange="previewPostImage(this)">
-                                            <button onclick="startVoiceRecording()">
-                                                <i class="fas fa-microphone"></i> Голос
-                                            </button>
-                                        </div>
-                                        <button class="btn btn-primary" onclick="createPost()">Опубликовать</button>
-                                    </div>
-                                    <div id="postImagePreview" style="margin-top: 12px; display: none;">
-                                        <img style="max-width: 100%; border-radius: 8px;" id="previewImg">
-                                        <button onclick="removePostImage()" style="margin-top: 8px;" class="btn btn-secondary btn-sm">Удалить фото</button>
-                                    </div>
+                    <!-- Search Bar for Feed -->
+                    <div class="card" style="margin-bottom: 16px;">
+                        <div class="card-body" style="padding: 12px 16px;">
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <div style="flex: 1; position: relative;">
+                                    <input type="text" id="feedSearchInput" placeholder="Поиск постов, людей, хештегов..." 
+                                        style="width: 100%; padding: 12px 16px 12px 44px; border: 1px solid var(--border); border-radius: 25px; font-size: 14px; outline: none; background: var(--bg-card); color: var(--text);"
+                                        oninput="handleFeedSearch(this.value)">
+                                    <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
                                 </div>
+                                <button class="btn btn-primary" onclick="showSection('profile')" style="white-space: nowrap;">
+                                    <i class="fas fa-plus"></i> Создать пост
+                                </button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Posts Feed -->
                     <div id="postsFeed"></div>
+                    
+                    <!-- Load More -->
+                    <div style="text-align: center; padding: 20px;">
+                        <button class="btn btn-secondary" onclick="loadMorePosts()" id="loadMoreBtn">
+                            <i class="fas fa-sync-alt"></i> Загрузить ещё
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Profile Section -->
@@ -1464,13 +1513,20 @@
                     </div>
                     
                     <!-- Telegram Link Card -->
-                    <div id="telegramLinkCard" class="card telegram-link-card animate-slide">
-                        <div class="card-header">
-                            <h3><i class="fab fa-telegram"></i> Привязать Telegram</h3>
+                    <div id="telegramLinkCard" class="card animate-slide" style="background: linear-gradient(135deg, #0088cc 0%, #0077b5 100%); color: white; display: none;">
+                        <div class="card-header" style="border-bottom-color: rgba(255,255,255,0.2);">
+                            <h3 style="color: white;"><i class="fab fa-telegram"></i> Привязать Telegram</h3>
                         </div>
                         <div class="card-body">
                             <p style="margin-bottom: 16px; opacity: 0.9;">Привяжите Telegram для быстрого входа и уведомлений</p>
-                            <div id="profileTelegramWidget" style="display: flex; justify-content: center;"></div>
+                            <div id="profileTelegramWidget" style="display: flex; justify-content: center; min-height: 50px;">
+                                <!-- Telegram widget will be loaded here -->
+                            </div>
+                            <p id="telegramWidgetFallback" style="text-align: center; margin-top: 12px; display: none;">
+                                <button class="btn" style="background: rgba(255,255,255,0.2); color: white;" onclick="openTelegramLink()">
+                                    <i class="fab fa-telegram"></i> Открыть в Telegram
+                                </button>
+                            </p>
                         </div>
                     </div>
 
@@ -1915,6 +1971,10 @@
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
+            // Set theme based on time
+            setThemeByTime();
+            
+            // Load Telegram widgets
             loadTelegramWidget('telegramLoginWidget');
             loadTelegramWidget('telegramRegWidget');
             
@@ -1928,8 +1988,14 @@
                         loginSuccess();
                     } else {
                         localStorage.removeItem('chegoStenaUser');
+                        hideLoadingScreen();
                     }
+                }).catch(() => {
+                    hideLoadingScreen();
                 });
+            } else {
+                // No saved user, show auth screen after short delay
+                setTimeout(hideLoadingScreen, 1000);
             }
 
             // Check readonly mode
@@ -1943,6 +2009,26 @@
             handleHashChange();
             window.addEventListener('hashchange', handleHashChange);
         });
+        
+        function hideLoadingScreen() {
+            const loading = document.getElementById('loadingScreen');
+            if (loading) {
+                loading.classList.add('hidden');
+            }
+        }
+        
+        function setThemeByTime() {
+            const hour = new Date().getHours();
+            // Dark theme from 20:00 (8 PM) to 7:00 (7 AM)
+            if (hour >= 20 || hour < 7) {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+            
+            // Check every hour
+            setTimeout(setThemeByTime, 3600000);
+        }
 
         function handleHashChange() {
             const hash = window.location.hash.slice(1);
@@ -2110,6 +2196,10 @@
 
         function loginSuccess() {
             localStorage.setItem('chegoStenaUser', JSON.stringify(currentUser));
+            
+            // Hide loading screen
+            hideLoadingScreen();
+            
             document.getElementById('authScreen').classList.remove('active');
             document.getElementById('mainApp').style.display = 'block';
             
@@ -2120,8 +2210,14 @@
             loadNotifications();
             loadOnlineFriends();
             loadRecommendations();
+            loadProfileTelegramWidget();
             
             window.location.hash = 'feed';
+            
+            // Welcome toast
+            setTimeout(() => {
+                showToast('Добро пожаловать!', `Привет, ${currentUser.name}!`, 'success');
+            }, 500);
         }
 
         function logout() {
@@ -2175,30 +2271,106 @@
 
         // Section Navigation
         function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            const section = document.getElementById(sectionId + 'Section');
-            if (section) {
-                section.classList.add('active');
-                window.location.hash = sectionId;
-            }
-            
-            document.querySelector(`.nav-item[data-section="${sectionId}"]`)?.classList.add('active');
+            // Use requestAnimationFrame to prevent freezing
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+                
+                const section = document.getElementById(sectionId + 'Section');
+                if (section) {
+                    section.classList.add('active');
+                    // Add slide animation
+                    section.style.animation = 'none';
+                    section.offsetHeight; // Trigger reflow
+                    section.style.animation = 'fadeIn 0.3s ease';
+                    
+                    // Update hash without scrolling
+                    history.replaceState(null, '', '#' + sectionId);
+                }
+                
+                // Update desktop nav
+                const navItem = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+                if (navItem) navItem.classList.add('active');
+                
+                // Update mobile nav
+                const mobileNavItem = document.querySelector(`.mobile-nav-item[data-section="${sectionId}"]`);
+                if (mobileNavItem) mobileNavItem.classList.add('active');
+                
+                // Scroll to top smoothly
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         }
 
         // Posts Functions
+        let postsLoaded = 0;
+        const POSTS_PER_PAGE = 20;
+        
         function loadFeed() {
             const feedEl = document.getElementById('postsFeed');
+            postsLoaded = POSTS_PER_PAGE;
             
-            db.ref('posts').orderByChild('createdAt').limitToLast(50).on('value', snapshot => {
+            db.ref('posts').orderByChild('createdAt').limitToLast(POSTS_PER_PAGE).on('value', snapshot => {
                 const posts = [];
                 snapshot.forEach(child => {
-                    posts.push({...child.val(), id: child.key});
+                    const post = child.val();
+                    if (post && post.authorName) { // Filter out broken posts
+                        posts.push({...post, id: child.key});
+                    }
+                });
+                posts.reverse();
+                
+                if (posts.length === 0) {
+                    feedEl.innerHTML = `
+                        <div style="padding: 60px 20px; text-align: center; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border);">
+                            <i class="fas fa-newspaper" style="font-size: 64px; color: var(--text-secondary); margin-bottom: 20px;"></i>
+                            <h3 style="color: var(--text); margin-bottom: 12px;">Лента пока пуста</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 20px;">Создайте свой первый пост или подпишитесь на интересных авторов</p>
+                            <button class="btn btn-primary" onclick="showSection('profile')">
+                                <i class="fas fa-plus"></i> Создать пост
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    feedEl.innerHTML = posts.map(post => renderPost(post)).join('');
+                }
+                
+                // Update load more button
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                if (loadMoreBtn) {
+                    loadMoreBtn.style.display = posts.length >= POSTS_PER_PAGE ? 'inline-flex' : 'none';
+                }
+            });
+        }
+        
+        function loadMorePosts() {
+            const feedEl = document.getElementById('postsFeed');
+            const btn = document.getElementById('loadMoreBtn');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+            
+            postsLoaded += POSTS_PER_PAGE;
+            
+            db.ref('posts').orderByChild('createdAt').limitToLast(postsLoaded).once('value').then(snapshot => {
+                const posts = [];
+                snapshot.forEach(child => {
+                    const post = child.val();
+                    if (post && post.authorName) {
+                        posts.push({...post, id: child.key});
+                    }
                 });
                 posts.reverse();
                 
                 feedEl.innerHTML = posts.map(post => renderPost(post)).join('');
+                
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Загрузить ещё';
+                
+                // Hide if no more posts
+                if (posts.length < postsLoaded) {
+                    btn.style.display = 'none';
+                }
             });
         }
 
@@ -2266,10 +2438,10 @@
                             <i class="fas fa-retweet"></i>
                             <span>${post.reposts || 0}</span>
                         </button>
-                        <button class="post-action" onclick="recordVoiceComment('${post.id}')" title="Голосовой комментарий">
-                            <i class="fas fa-microphone"></i>
+                        <button class="post-action" onclick="sharePost('${post.id}')" title="Поделиться">
+                            <i class="fas fa-share-alt"></i>
                         </button>
-                        <button class="post-action" onclick="bookmarkPost('${post.id}')">
+                        <button class="post-action ${post.bookmarked ? 'liked' : ''}" onclick="bookmarkPost('${post.id}')" title="В закладки">
                             <i class="fas fa-bookmark"></i>
                         </button>
                     </div>
@@ -2343,14 +2515,76 @@
         }
 
         function searchHashtag(tag) {
-            document.getElementById('searchInput').value = '#' + tag;
-            handleSearch();
+            document.getElementById('feedSearchInput').value = '#' + tag;
+            handleFeedSearch('#' + tag);
         }
 
         function handleSearch() {
             const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            // Implement search logic
-            console.log('Searching for:', query);
+            if (query.length < 2) return;
+            handleFeedSearch(query);
+        }
+        
+        function handleFeedSearch(query) {
+            if (!query || query.length < 2) {
+                loadFeed();
+                return;
+            }
+            
+            query = query.toLowerCase();
+            const feedEl = document.getElementById('postsFeed');
+            
+            // Search in posts
+            db.ref('posts').orderByChild('createdAt').limitToLast(100).once('value').then(snapshot => {
+                const results = [];
+                snapshot.forEach(child => {
+                    const post = child.val();
+                    const text = (post.text || '').toLowerCase();
+                    const author = (post.authorName || '').toLowerCase();
+                    
+                    if (text.includes(query) || author.includes(query) || 
+                        (query.startsWith('#') && text.includes(query))) {
+                        results.push({...post, id: child.key});
+                    }
+                });
+                
+                results.reverse();
+                
+                if (results.length > 0) {
+                    feedEl.innerHTML = `
+                        <div style="padding: 12px 16px; background: var(--primary); color: white; border-radius: 10px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-search"></i> Результаты поиска: "${query}" (${results.length})</span>
+                            <button onclick="loadFeed(); document.getElementById('feedSearchInput').value='';" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+                                <i class="fas fa-times"></i> Сбросить
+                            </button>
+                        </div>
+                        ${results.map(post => renderPost(post)).join('')}
+                    `;
+                } else {
+                    feedEl.innerHTML = `
+                        <div style="padding: 40px; text-align: center; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border);">
+                            <i class="fas fa-search" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+                            <h3 style="color: var(--text); margin-bottom: 8px;">Ничего не найдено</h3>
+                            <p style="color: var(--text-secondary);">По запросу "${query}" нет результатов</p>
+                            <button onclick="loadFeed(); document.getElementById('feedSearchInput').value='';" class="btn btn-primary" style="margin-top: 16px;">
+                                Вернуться к ленте
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+            
+            // Also search users
+            if (!query.startsWith('#')) {
+                db.ref('users').once('value').then(snapshot => {
+                    snapshot.forEach(child => {
+                        const user = child.val();
+                        if (user && (user.name?.toLowerCase().includes(query) || user.username?.toLowerCase().includes(query))) {
+                            // Found user - could show in sidebar or separate section
+                        }
+                    });
+                });
+            }
         }
 
         // Voice Messages
@@ -2656,39 +2890,95 @@
         // Online Friends Widget
         function loadOnlineFriends() {
             const container = document.getElementById('onlineFriends');
-            let html = '';
-            for (let i = 1; i <= 10; i++) {
-                html += `
-                    <div class="online-friend" onclick="viewProfile('demo_${i}')">
-                        <img src="https://i.pravatar.cc/100?img=${i + 10}">
-                        <div class="online-dot"></div>
-                    </div>
-                `;
-            }
-            container.innerHTML = html;
+            
+            db.ref('users').limitToFirst(10).once('value').then(snapshot => {
+                let html = '';
+                let count = 0;
+                snapshot.forEach(child => {
+                    if (child.key !== currentUser?.id && count < 10) {
+                        const user = child.val();
+                        if (user && user.avatar && user.name) {
+                            html += `
+                                <div class="online-friend" onclick="viewUserProfile('${child.key}')" title="${user.name}">
+                                    <img src="${user.avatar}" alt="${user.name}" onerror="this.src='https://i.pravatar.cc/100?img=${count}'">
+                                    <div class="online-dot"></div>
+                                </div>
+                            `;
+                            count++;
+                        }
+                    }
+                });
+                
+                // If no real users, show placeholders
+                if (count === 0) {
+                    for (let i = 1; i <= 5; i++) {
+                        html += `
+                            <div class="online-friend" style="opacity: 0.5; cursor: default;">
+                                <img src="https://i.pravatar.cc/100?img=${i + 10}">
+                            </div>
+                        `;
+                    }
+                }
+                container.innerHTML = html;
+            });
+        }
+        
+        function viewUserProfile(userId) {
+            // Store the user ID to view
+            sessionStorage.setItem('viewingUserId', userId);
+            showSection('profile');
+            // Could implement viewing other profiles here
         }
 
         // Recommendations
         function loadRecommendations() {
             const container = document.getElementById('recommendations');
-            db.ref('posts').orderByChild('createdAt').limitToLast(5).once('value').then(snapshot => {
+            const addedUsers = new Set();
+            
+            db.ref('users').orderByChild('createdAt').limitToLast(20).once('value').then(snapshot => {
                 let html = '';
+                const users = [];
                 snapshot.forEach(child => {
-                    const post = child.val();
-                    if (post.authorId !== currentUser.id) {
-                        html += `
-                            <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer;" onclick="viewProfile('${post.authorId}')">
-                                <img src="${post.authorAvatar}" style="width: 40px; height: 40px; border-radius: 50%;">
-                                <div>
-                                    <div style="font-weight: 500; font-size: 14px;">${post.authorName}</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">Популярный автор</div>
-                                </div>
-                            </div>
-                        `;
+                    if (child.key !== currentUser?.id) {
+                        const user = child.val();
+                        if (user && user.name && user.avatar && !addedUsers.has(child.key)) {
+                            users.push({...user, id: child.key});
+                            addedUsers.add(child.key);
+                        }
                     }
                 });
-                container.innerHTML = html || '<p style="color: var(--text-secondary); font-size: 14px;">Нет рекомендаций</p>';
+                
+                // Shuffle and take 5
+                users.sort(() => Math.random() - 0.5);
+                users.slice(0, 5).forEach(user => {
+                    let badge = '';
+                    if (user.superVerified) badge = '<span class="verified-badge super-verified-badge" style="width:14px;height:14px;font-size:7px;"><i class="fas fa-star"></i></span>';
+                    else if (user.verified) badge = '<span class="verified-badge" style="width:14px;height:14px;font-size:7px;"><i class="fas fa-check"></i></span>';
+                    
+                    html += `
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border);">
+                            <img src="${user.avatar}" style="width: 44px; height: 44px; border-radius: 50%; cursor: pointer; object-fit: cover;" 
+                                onclick="viewUserProfile('${user.id}')" onerror="this.src='https://i.pravatar.cc/100'">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 4px; color: var(--text);">${user.name} ${badge}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@${user.username || 'user'}</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="followUser('${user.id}')" style="padding: 6px 12px; font-size: 12px;">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html || '<p style="color: var(--text-secondary); font-size: 14px; text-align: center;">Нет рекомендаций</p>';
             });
+        }
+        
+        function followUser(userId) {
+            if (!currentUser) return;
+            db.ref('followers/' + userId + '/' + currentUser.id).set(true);
+            db.ref('following/' + currentUser.id + '/' + userId).set(true);
+            showToast('Подписка', 'Вы подписались на пользователя', 'success');
+            loadRecommendations();
         }
 
         // Notifications
@@ -2826,25 +3116,148 @@
         }
 
         function showComments(postId) {
-            const comment = prompt('Напишите комментарий:');
-            if (comment) {
-                db.ref('posts/' + postId + '/comments').push({
-                    text: comment,
-                    authorId: currentUser.id,
-                    authorName: currentUser.name,
-                    createdAt: Date.now()
-                });
+            // Open comments modal
+            openCommentsModal(postId);
+        }
+        
+        function openCommentsModal(postId) {
+            // Create or show comments modal
+            let modal = document.getElementById('commentsModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'commentsModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal" style="max-width: 550px;">
+                        <div class="modal-header">
+                            <h2>Комментарии</h2>
+                            <button class="modal-close" onclick="closeModal('commentsModal')"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body" style="max-height: 400px; overflow-y: auto; padding: 0;">
+                            <div id="commentsList" style="padding: 16px;"></div>
+                        </div>
+                        <div style="padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end;">
+                            <img id="commentAvatar" src="" style="width: 36px; height: 36px; border-radius: 50%;">
+                            <div style="flex: 1; position: relative;">
+                                <textarea id="commentInput" placeholder="Написать комментарий..." rows="2" 
+                                    style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 12px; resize: none; font-family: inherit; font-size: 14px;"></textarea>
+                            </div>
+                            <button class="btn btn-secondary" onclick="recordVoiceComment(currentCommentPostId)" title="Голосовой комментарий" style="padding: 10px;">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="btn btn-primary" onclick="submitComment()" style="padding: 10px 16px;">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
             }
+            
+            window.currentCommentPostId = postId;
+            document.getElementById('commentAvatar').src = currentUser?.avatar || 'https://i.pravatar.cc/100';
+            document.getElementById('commentInput').value = '';
+            
+            // Load comments
+            loadCommentsForPost(postId);
+            
+            modal.classList.add('active');
+        }
+        
+        function loadCommentsForPost(postId) {
+            const container = document.getElementById('commentsList');
+            
+            db.ref('posts/' + postId + '/comments').orderByChild('createdAt').on('value', snapshot => {
+                let html = '';
+                const comments = [];
+                
+                snapshot.forEach(child => {
+                    comments.push({...child.val(), id: child.key});
+                });
+                
+                if (comments.length === 0) {
+                    html = '<p style="color: var(--text-secondary); text-align: center; padding: 24px;">Пока нет комментариев. Будьте первым!</p>';
+                } else {
+                    comments.forEach(comment => {
+                        const time = new Date(comment.createdAt).toLocaleString('ru-RU');
+                        
+                        if (comment.voiceMessage) {
+                            html += `
+                                <div style="display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                                    <img src="${comment.authorAvatar || 'https://i.pravatar.cc/100'}" style="width: 36px; height: 36px; border-radius: 50%;">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 14px; color: var(--text);">${comment.authorName}</div>
+                                        <div class="voice-message" style="margin-top: 8px; padding: 10px 14px;" data-audio="${comment.voiceMessage}">
+                                            <button class="voice-play" onclick="playVoiceMessage(this)" style="width: 32px; height: 32px; font-size: 12px;">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <div class="voice-waveform" style="height: 24px;">
+                                                ${Array(12).fill(0).map(() => `<div class="voice-bar" style="height: ${20 + Math.random() * 80}%"></div>`).join('')}
+                                            </div>
+                                            <span class="voice-time">0:${Math.floor(Math.random() * 20 + 5)}</span>
+                                        </div>
+                                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${time}</div>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div style="display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                                    <img src="${comment.authorAvatar || 'https://i.pravatar.cc/100'}" style="width: 36px; height: 36px; border-radius: 50%;">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 14px; color: var(--text);">${comment.authorName}</div>
+                                        <div style="font-size: 14px; color: var(--text); margin-top: 4px; line-height: 1.4;">${comment.text}</div>
+                                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${time}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                }
+                
+                container.innerHTML = html;
+            });
+        }
+        
+        function submitComment() {
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            
+            if (!text || !currentCommentPostId) return;
+            
+            if (isReadOnly) {
+                showToast('Ошибка', 'Режим только чтение', 'error');
+                return;
+            }
+            
+            db.ref('posts/' + currentCommentPostId + '/comments').push({
+                text,
+                authorId: currentUser.id,
+                authorName: currentUser.name,
+                authorAvatar: currentUser.avatar,
+                createdAt: Date.now()
+            });
+            
+            input.value = '';
+            showToast('Комментарий', 'Комментарий добавлен', 'success');
         }
 
         function sharePost(postId) {
+            const url = window.location.origin + window.location.pathname + '#post_' + postId;
+            
             if (navigator.share) {
                 navigator.share({
-                    title: 'ЧегоСтена',
-                    url: window.location.href
-                });
+                    title: 'ЧегоСтена - Пост',
+                    text: 'Посмотри этот пост!',
+                    url: url
+                }).catch(() => {});
             } else {
-                alert('Ссылка скопирована!');
+                // Copy to clipboard
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Скопировано', 'Ссылка скопирована в буфер обмена', 'success');
+                }).catch(() => {
+                    showToast('Ссылка', url, 'info');
+                });
             }
         }
 
@@ -3371,32 +3784,63 @@
         
         // ============ TELEGRAM LINK ============
         function loadProfileTelegramWidget() {
-            if (currentUser && currentUser.provider !== 'telegram') {
-                const container = document.getElementById('profileTelegramWidget');
-                if (container) {
-                    container.innerHTML = '';
-                    const script = document.createElement('script');
-                    script.async = true;
-                    script.src = 'https://telegram.org/js/telegram-widget.js?22';
-                    script.setAttribute('data-telegram-login', 'VriskasHelperBot');
-                    script.setAttribute('data-size', 'medium');
-                    script.setAttribute('data-onauth', 'linkTelegram(user)');
-                    script.setAttribute('data-request-access', 'write');
-                    container.appendChild(script);
-                }
-                document.getElementById('telegramLinkCard').style.display = 'block';
-            } else {
-                document.getElementById('telegramLinkCard').style.display = 'none';
+            const card = document.getElementById('telegramLinkCard');
+            const container = document.getElementById('profileTelegramWidget');
+            const fallback = document.getElementById('telegramWidgetFallback');
+            
+            if (!currentUser) return;
+            
+            // Don't show if already linked or registered via Telegram
+            if (currentUser.provider === 'telegram' || currentUser.telegramId) {
+                if (card) card.style.display = 'none';
+                return;
+            }
+            
+            if (card) card.style.display = 'block';
+            
+            if (container) {
+                container.innerHTML = '';
+                
+                // Create telegram widget
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://telegram.org/js/telegram-widget.js?22';
+                script.setAttribute('data-telegram-login', 'VriskasHelperBot');
+                script.setAttribute('data-size', 'large');
+                script.setAttribute('data-onauth', 'linkTelegram(user)');
+                script.setAttribute('data-request-access', 'write');
+                script.onerror = function() {
+                    // Show fallback if widget fails to load
+                    if (fallback) fallback.style.display = 'block';
+                };
+                container.appendChild(script);
+                
+                // Show fallback after timeout if widget doesn't load
+                setTimeout(() => {
+                    if (container.children.length === 1) { // Only script tag
+                        if (fallback) fallback.style.display = 'block';
+                    }
+                }, 3000);
             }
         }
         
+        function openTelegramLink() {
+            window.open('https://t.me/VriskasHelperBot', '_blank');
+        }
+        
         window.linkTelegram = function(user) {
+            if (!currentUser) return;
+            
             db.ref('users/' + currentUser.id).update({
                 telegramId: user.id,
-                telegramUsername: user.username
+                telegramUsername: user.username,
+                telegramPhoto: user.photo_url || null
             });
+            
             currentUser.telegramId = user.id;
-            showToast('Telegram привязан', `Аккаунт @${user.username} привязан`, 'success');
+            currentUser.telegramUsername = user.username;
+            
+            showToast('Telegram привязан', `Аккаунт @${user.username} успешно привязан!`, 'success');
             document.getElementById('telegramLinkCard').style.display = 'none';
         };
         
@@ -3459,12 +3903,22 @@
             });
         };
         
-        // Demo notifications on load
-        setTimeout(() => {
-            if (currentUser) {
-                showToast('Добро пожаловать!', `Привет, ${currentUser.name}!`, 'success');
-            }
-        }, 2000);
+        // Listen for real-time notifications
+        function listenForNotifications() {
+            if (!currentUser) return;
+            
+            db.ref('notifications/' + currentUser.id).orderByChild('createdAt').limitToLast(1).on('child_added', snapshot => {
+                const notif = snapshot.val();
+                if (notif && !notif.shown && Date.now() - notif.createdAt < 60000) {
+                    // Only show if less than 1 minute old
+                    const setting = 'notif_' + (notif.type || 'general');
+                    if (notifSettings[setting] !== false) {
+                        showToast(notif.title || 'Уведомление', notif.text, 'info');
+                    }
+                    db.ref('notifications/' + currentUser.id + '/' + snapshot.key + '/shown').set(true);
+                }
+            });
+        }
     </script>
 </body>
 </html>
