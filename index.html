@@ -209,13 +209,17 @@
             border-color: var(--border);
         }
         
-        /* Loading Screen */
+        /* Loading Screen - ПРОСТАЯ ВЕРСИЯ */
         .loading-screen {
-            position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s, visibility 0.5s;
+            position: fixed; 
+            inset: 0; 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            z-index: 10000; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
         }
-        .loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .loading-logo { font-size: 48px; color: white; margin-bottom: 24px; animation: pulse 1.5s infinite; }
         .loading-logo i { margin-right: 12px; }
         .loading-spinner {
@@ -2013,15 +2017,14 @@
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
+            // СРАЗУ скрываем загрузку через 1.5 секунды МАКСИМУМ
+            // Это гарантия что она всегда пропадёт
+            setTimeout(hideLoadingScreen, 1500);
+            
             // Set theme based on time
             setThemeByTime();
             
-            // FALLBACK: Always hide loading screen after 3 seconds max
-            const loadingTimeout = setTimeout(() => {
-                hideLoadingScreen();
-            }, 3000);
-            
-            // Load Telegram widgets with delay to ensure DOM is ready
+            // Load Telegram widgets
             setTimeout(() => {
                 loadTelegramWidget('telegramLoginWidget');
                 loadTelegramWidget('telegramRegWidget');
@@ -2033,28 +2036,24 @@
                 try {
                     currentUser = JSON.parse(savedUser);
                     db.ref('users/' + currentUser.id).once('value').then(snapshot => {
-                        clearTimeout(loadingTimeout);
+                        hideLoadingScreen(); // Скрываем при успехе
                         if (snapshot.exists()) {
                             currentUser = {...snapshot.val(), id: currentUser.id};
                             loginSuccess();
                         } else {
                             localStorage.removeItem('chegoStenaUser');
-                            hideLoadingScreen();
                         }
                     }).catch((err) => {
                         console.error('Firebase error:', err);
-                        clearTimeout(loadingTimeout);
-                        hideLoadingScreen();
+                        hideLoadingScreen(); // Скрываем при ошибке
                     });
                 } catch (e) {
                     console.error('Parse error:', e);
                     localStorage.removeItem('chegoStenaUser');
-                    clearTimeout(loadingTimeout);
-                    hideLoadingScreen();
+                    hideLoadingScreen(); // Скрываем при ошибке парсинга
                 }
             } else {
-                // No saved user - hide loading screen immediately and show auth
-                clearTimeout(loadingTimeout);
+                // Нет сохранённого пользователя - сразу скрываем загрузку
                 hideLoadingScreen();
             }
 
@@ -2075,7 +2074,10 @@
         function hideLoadingScreen() {
             const loading = document.getElementById('loadingScreen');
             if (loading) {
-                loading.classList.add('hidden');
+                // Просто удаляем элемент - никаких анимаций, никаких классов
+                loading.style.display = 'none';
+                // Также можно удалить полностью
+                loading.remove();
             }
         }
         
