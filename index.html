@@ -2016,35 +2016,46 @@
             // Set theme based on time
             setThemeByTime();
             
-            // Load Telegram widgets
-            loadTelegramWidget('telegramLoginWidget');
-            loadTelegramWidget('telegramRegWidget');
+            // Load Telegram widgets with delay to ensure DOM is ready
+            setTimeout(() => {
+                loadTelegramWidget('telegramLoginWidget');
+                loadTelegramWidget('telegramRegWidget');
+            }, 500);
             
             // Check for saved user
             const savedUser = localStorage.getItem('chegoStenaUser');
             if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                db.ref('users/' + currentUser.id).once('value').then(snapshot => {
-                    if (snapshot.exists()) {
-                        currentUser = {...snapshot.val(), id: currentUser.id};
-                        loginSuccess();
-                    } else {
-                        localStorage.removeItem('chegoStenaUser');
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    db.ref('users/' + currentUser.id).once('value').then(snapshot => {
+                        if (snapshot.exists()) {
+                            currentUser = {...snapshot.val(), id: currentUser.id};
+                            loginSuccess();
+                        } else {
+                            localStorage.removeItem('chegoStenaUser');
+                            hideLoadingScreen();
+                        }
+                    }).catch((err) => {
+                        console.error('Firebase error:', err);
                         hideLoadingScreen();
-                    }
-                }).catch(() => {
+                    });
+                } catch (e) {
+                    console.error('Parse error:', e);
+                    localStorage.removeItem('chegoStenaUser');
                     hideLoadingScreen();
-                });
+                }
             } else {
-                // No saved user, show auth screen after short delay
-                setTimeout(hideLoadingScreen, 1000);
+                // No saved user - hide loading screen immediately and show auth
+                hideLoadingScreen();
             }
 
             // Check readonly mode
             db.ref('settings/readOnly').on('value', snapshot => {
                 isReadOnly = snapshot.val() === true;
-                document.getElementById('readonlyBanner').classList.toggle('active', isReadOnly);
-                document.getElementById('mainContainer').classList.toggle('with-banner', isReadOnly);
+                const banner = document.getElementById('readonlyBanner');
+                const container = document.getElementById('mainContainer');
+                if (banner) banner.classList.toggle('active', isReadOnly);
+                if (container) container.classList.toggle('with-banner', isReadOnly);
             });
 
             // Handle hash navigation
