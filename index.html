@@ -8,7 +8,117 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, sans-serif; background: #edeef0; min-height: 100vh; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #edeef0; min-height: 100vh; overflow-x: hidden; }
+        
+        /* Smooth Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        @keyframes ripple { 0% { transform: scale(0); opacity: 0.5; } 100% { transform: scale(4); opacity: 0; } }
+        
+        .animate-fade { animation: fadeIn 0.3s ease; }
+        .animate-slide { animation: slideUp 0.4s ease; }
+        .animate-scale { animation: scaleIn 0.3s ease; }
+        
+        /* Toast Notifications */
+        .toast-container { position: fixed; top: 70px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { 
+            background: white; padding: 14px 20px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 12px; min-width: 300px; max-width: 400px;
+            animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto;
+            transform-origin: right center; border-left: 4px solid var(--primary);
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .toast-icon.success { background: #e8f5e9; color: var(--success); }
+        .toast-icon.error { background: #ffebee; color: var(--danger); }
+        .toast-icon.info { background: #e3f2fd; color: var(--primary); }
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 600; font-size: 14px; color: var(--text); }
+        .toast-message { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+        .toast-close { background: none; border: none; color: #999; cursor: pointer; font-size: 18px; padding: 4px; }
+        .toast-close:hover { color: #666; }
+        .toast.hiding { animation: slideOut 0.3s ease forwards; }
+        @keyframes slideOut { to { opacity: 0; transform: translateX(100%); } }
+        
+        /* Mobile Bottom Navigation */
+        .mobile-nav {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white;
+            border-top: 1px solid var(--border); z-index: 1000; padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        .mobile-nav-inner { display: flex; justify-content: space-around; align-items: center; max-width: 500px; margin: 0 auto; }
+        .mobile-nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 16px;
+            color: var(--text-secondary); text-decoration: none; font-size: 11px; font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; border-radius: 12px;
+        }
+        .mobile-nav-item i { font-size: 22px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .mobile-nav-item.active { color: var(--primary); }
+        .mobile-nav-item.active i { transform: scale(1.15); }
+        .mobile-nav-item::before {
+            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%) scaleX(0);
+            width: 30px; height: 3px; background: var(--primary); border-radius: 0 0 4px 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mobile-nav-item.active::before { transform: translateX(-50%) scaleX(1); }
+        .mobile-nav-item .badge {
+            position: absolute; top: 2px; right: 8px; background: var(--danger); color: white;
+            font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 600;
+        }
+        
+        /* Slide Indicator for Mobile Nav (iOS/Android style) */
+        .nav-indicator {
+            position: absolute; bottom: 4px; height: 4px; background: var(--primary); border-radius: 2px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 40px;
+        }
+        
+        /* Custom File Input */
+        .custom-file-input { position: relative; display: block; }
+        .custom-file-input input[type="file"] { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .custom-file-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); border: 2px dashed var(--border);
+            border-radius: 12px; color: var(--text-secondary); font-size: 14px; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .custom-file-btn:hover { border-color: var(--primary); color: var(--primary); background: #f0f5ff; }
+        .custom-file-btn i { font-size: 20px; }
+        .custom-file-btn.has-file { border-color: var(--success); color: var(--success); background: #e8f5e9; }
+        
+        /* Call Modal */
+        .call-modal {
+            display: none; position: fixed; inset: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            z-index: 2000; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .call-modal.active { display: flex; animation: fadeIn 0.3s ease; }
+        .call-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.3); animation: pulse 2s infinite; }
+        .call-name { color: white; font-size: 24px; font-weight: 600; margin-top: 20px; }
+        .call-status { color: rgba(255,255,255,0.7); margin-top: 8px; font-size: 16px; }
+        .call-timer { color: var(--success); font-size: 18px; font-weight: 600; margin-top: 8px; }
+        .call-actions { display: flex; gap: 20px; margin-top: 50px; }
+        .call-btn {
+            width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            transition: all 0.3s ease; color: white;
+        }
+        .call-btn:hover { transform: scale(1.1); }
+        .call-btn.end { background: var(--danger); }
+        .call-btn.mute { background: rgba(255,255,255,0.2); }
+        .call-btn.speaker { background: rgba(255,255,255,0.2); }
+        .call-btn.accept { background: var(--success); }
+        .call-waves {
+            position: absolute; width: 150px; height: 150px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2); animation: callWave 2s infinite;
+        }
+        .call-waves:nth-child(2) { animation-delay: 0.5s; }
+        .call-waves:nth-child(3) { animation-delay: 1s; }
+        @keyframes callWave { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
         
         :root {
             --primary: #5181b8;
@@ -882,11 +992,141 @@
         .section { display: none; }
         .section.active { display: block; }
 
-        /* Responsive */
+        /* Responsive - Tablets */
         @media (max-width: 1024px) {
-            .main-container { grid-template-columns: 1fr; }
+            .main-container { grid-template-columns: 1fr; padding-bottom: 80px; }
             .sidebar, .right-sidebar { display: none; }
+            .mobile-nav { display: block; }
+            .header-actions .user-menu span { display: none; }
+            .search-box { width: 200px; }
+            .chat-window { width: 100%; right: 0; border-radius: 0; height: 100vh; bottom: 0; }
         }
+        
+        /* Responsive - Mobile */
+        @media (max-width: 768px) {
+            .header-inner { padding: 0 12px; }
+            .logo span { display: none; }
+            .search-box { width: 140px; }
+            .search-box input { padding: 8px 12px 8px 36px; font-size: 13px; }
+            .header-btn { width: 36px; height: 36px; font-size: 16px; }
+            .main-container { padding: 64px 12px 90px; gap: 12px; }
+            .card { border-radius: 10px; }
+            .modal { width: 100%; max-width: 100%; margin: 12px; border-radius: 16px; max-height: calc(100vh - 24px); }
+            .post-actions { flex-wrap: wrap; }
+            .post-action { font-size: 13px; padding: 8px; }
+            .create-post-btns { flex-wrap: wrap; }
+            .profile-header { height: 150px; }
+            .profile-avatar { width: 100px; height: 100px; }
+            .profile-avatar-wrapper { bottom: -50px; left: 16px; }
+            .profile-info { padding: 60px 16px 16px; }
+            .profile-name { font-size: 20px; }
+            .profile-stats { gap: 16px; }
+            .profile-actions { flex-wrap: wrap; }
+            .notifications-dropdown { width: calc(100vw - 24px); right: -50px; }
+            .auth-card { padding: 24px; margin: 12px; }
+            .auth-logo h1 { font-size: 24px; }
+        }
+        
+        /* Responsive - Small phones */
+        @media (max-width: 480px) {
+            .search-box { display: none; }
+            .header-actions { gap: 8px; }
+            .create-post-actions { flex-direction: column; gap: 12px; }
+            .create-post-btns { width: 100%; justify-content: space-around; }
+            .post-header { padding: 12px; }
+            .post-content { padding: 0 12px 12px; }
+            .post-avatar { width: 40px; height: 40px; }
+            .voice-message { margin: 8px 12px; padding: 10px 14px; }
+            .online-friends { grid-template-columns: repeat(4, 1fr); }
+            .modal-body { padding: 16px; }
+            .form-control { padding: 10px 14px; }
+            .btn { padding: 10px 20px; font-size: 14px; }
+        }
+        
+        /* Landscape phones */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .mobile-nav { padding: 4px 0; }
+            .mobile-nav-item { padding: 6px 12px; }
+            .mobile-nav-item i { font-size: 18px; }
+            .mobile-nav-item span { display: none; }
+            .call-avatar { width: 80px; height: 80px; }
+            .call-actions { margin-top: 20px; }
+        }
+        
+        /* Safe areas for notched phones */
+        @supports (padding: env(safe-area-inset-bottom)) {
+            .mobile-nav { padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+            .main-container { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+        }
+        
+        /* Hover effects only on non-touch devices */
+        @media (hover: hover) {
+            .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+            .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+            .post-action:hover { transform: scale(1.05); }
+            .nav-item:hover { transform: translateX(4px); }
+        }
+        
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+        
+        /* Notification Settings Panel */
+        .notif-settings { padding: 16px; border-top: 1px solid var(--border); }
+        .notif-setting-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+        .notif-setting-item span { font-size: 14px; color: var(--text); }
+        .toggle-switch { 
+            width: 44px; height: 24px; background: #ddd; border-radius: 12px; 
+            position: relative; cursor: pointer; transition: background 0.3s;
+        }
+        .toggle-switch.active { background: var(--primary); }
+        .toggle-switch::after {
+            content: ''; position: absolute; width: 20px; height: 20px; background: white;
+            border-radius: 50%; top: 2px; left: 2px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::after { transform: translateX(20px); }
+        
+        /* Profile Cover Upload */
+        .profile-cover-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: none;
+            align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;
+        }
+        .profile-header:hover .profile-cover-overlay { display: flex; }
+        .profile-cover-overlay i { color: white; font-size: 32px; }
+        
+        /* Draw Canvas for Cover */
+        .draw-modal .modal { max-width: 600px; }
+        .draw-canvas-container { background: #f5f5f5; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+        .draw-canvas { width: 100%; height: 200px; cursor: crosshair; touch-action: none; }
+        .draw-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .draw-tools button { padding: 8px 12px; border: 1px solid var(--border); background: white; border-radius: 8px; cursor: pointer; }
+        .draw-tools button.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .draw-tools input[type="color"] { width: 40px; height: 36px; border: none; border-radius: 8px; cursor: pointer; }
+        .draw-tools input[type="range"] { width: 100px; }
+        
+        /* Telegram Link in Profile */
+        .telegram-link-card { background: linear-gradient(135deg, #0088cc, #0077b5); color: white; }
+        .telegram-link-card .card-header { border-bottom-color: rgba(255,255,255,0.2); }
+        .telegram-link-card h3 { color: white; }
+        
+        /* Rules Modal */
+        .rules-list { list-style: none; }
+        .rules-list li { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
+        .rules-list li:last-child { border-bottom: none; }
+        .rules-list .rule-icon { width: 32px; height: 32px; background: #ffebee; color: var(--danger); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .rules-accept { display: flex; align-items: center; gap: 10px; padding: 16px; background: #f5f7fa; border-radius: 10px; margin-top: 16px; }
+        .rules-accept input { width: 20px; height: 20px; cursor: pointer; }
+        
+        /* AI Moderation Status */
+        .moderation-warning {
+            background: linear-gradient(135deg, #ff9800, #f57c00); color: white;
+            padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; display: none;
+            align-items: center; gap: 12px; animation: slideUp 0.4s ease;
+        }
+        .moderation-warning.active { display: flex; }
+        .moderation-warning i { font-size: 20px; }
     </style>
 </head>
 <body>
@@ -940,9 +1180,21 @@
                 </div>
                 <div class="form-group">
                     <label>Аватарка</label>
-                    <input type="file" id="regAvatar" class="form-control" accept="image/*">
+                    <div class="custom-file-input">
+                        <div class="custom-file-btn" id="regAvatarBtn">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Выбрать аватарку</span>
+                        </div>
+                        <input type="file" id="regAvatar" accept="image/*" onchange="updateFileLabel(this, 'regAvatarBtn')">
+                    </div>
                 </div>
-                <button onclick="handleRegister()" class="btn btn-primary btn-block">Создать аккаунт</button>
+                <div class="rules-accept" style="margin-bottom: 16px;">
+                    <input type="checkbox" id="regRulesAccept" onchange="document.getElementById('regSubmitBtn').disabled = !this.checked">
+                    <label for="regRulesAccept" style="font-size: 13px; cursor: pointer;">
+                        Я принимаю <a href="#" onclick="openRulesModal(); return false;" style="color: var(--primary);">правила сообщества</a>
+                    </label>
+                </div>
+                <button onclick="handleRegister()" class="btn btn-primary btn-block" id="regSubmitBtn" disabled>Создать аккаунт</button>
                 
                 <div class="auth-divider">или</div>
                 
@@ -972,8 +1224,55 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Call Modal -->
+    <div class="call-modal" id="callModal">
+        <div class="call-waves"></div>
+        <div class="call-waves"></div>
+        <div class="call-waves"></div>
+        <img class="call-avatar" id="callAvatar" src="https://i.pravatar.cc/200">
+        <div class="call-name" id="callName">Имя пользователя</div>
+        <div class="call-status" id="callStatus">Вызов...</div>
+        <div class="call-timer" id="callTimer" style="display: none;">00:00</div>
+        <div class="call-actions">
+            <button class="call-btn mute" onclick="toggleMute()" id="muteBtn"><i class="fas fa-microphone"></i></button>
+            <button class="call-btn end" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
+            <button class="call-btn speaker" onclick="toggleSpeaker()" id="speakerBtn"><i class="fas fa-volume-up"></i></button>
+        </div>
+    </div>
+    
     <!-- Main App -->
     <div id="mainApp" style="display: none;">
+        <!-- Mobile Bottom Navigation -->
+        <nav class="mobile-nav">
+            <div class="mobile-nav-inner">
+                <a class="mobile-nav-item active" onclick="showSection('feed')" data-section="feed">
+                    <i class="fas fa-home"></i>
+                    <span>Главная</span>
+                </a>
+                <a class="mobile-nav-item" onclick="showSection('messages')" data-section="messages">
+                    <i class="fas fa-comment"></i>
+                    <span>Чаты</span>
+                    <span class="badge" id="mobileMsgBadge" style="display: none;">0</span>
+                </a>
+                <a class="mobile-nav-item" onclick="showSection('friends')" data-section="friends">
+                    <i class="fas fa-users"></i>
+                    <span>Друзья</span>
+                </a>
+                <a class="mobile-nav-item" onclick="showSection('notifications')" data-section="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span>Уведом.</span>
+                    <span class="badge" id="mobileNotifBadge" style="display: none;">0</span>
+                </a>
+                <a class="mobile-nav-item" onclick="showSection('profile')" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Профиль</span>
+                </a>
+            </div>
+        </nav>
+        
         <!-- Readonly Banner -->
         <div id="readonlyBanner" class="readonly-banner">
             <i class="fas fa-lock"></i> Сайт находится в режиме "только чтение". Публикация контента временно недоступна.
@@ -1087,9 +1386,42 @@
 
                 <!-- Profile Section -->
                 <div id="profileSection" class="section">
-                    <div class="card" style="padding: 0; overflow: hidden;">
-                        <div class="profile-header">
+                    <!-- Create Post in Profile -->
+                    <div class="card animate-slide">
+                        <div class="card-header">
+                            <h3>Создать публикацию</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="create-post">
+                                <img id="profileCreateAvatar" src="https://i.pravatar.cc/100?img=1" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
+                                <div class="create-post-input" style="flex: 1;">
+                                    <textarea id="profilePostText" placeholder="Что нового?" rows="2" style="width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 14px; resize: none; font-family: inherit;"></textarea>
+                                    <div class="create-post-actions" style="margin-top: 12px;">
+                                        <div class="create-post-btns">
+                                            <div class="custom-file-input" style="display: inline-block;">
+                                                <button type="button" style="padding: 8px 12px; border: none; background: #f0f2f5; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                                                    <i class="fas fa-image"></i> Фото
+                                                </button>
+                                                <input type="file" id="profilePostImage" accept="image/*" onchange="previewProfilePostImage(this)">
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary" onclick="createProfilePost()">Опубликовать</button>
+                                    </div>
+                                    <div id="profilePostImagePreview" style="margin-top: 12px; display: none;">
+                                        <img style="max-width: 100%; border-radius: 8px;" id="profilePreviewImg">
+                                        <button onclick="removeProfilePostImage()" style="margin-top: 8px;" class="btn btn-secondary">Удалить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card animate-slide" style="padding: 0; overflow: hidden;">
+                        <div class="profile-header" style="cursor: pointer;" onclick="openCoverOptions()">
                             <img id="profileCover" class="profile-cover" src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800" alt="">
+                            <div class="profile-cover-overlay">
+                                <i class="fas fa-camera"></i>
+                            </div>
                             <div class="profile-avatar-wrapper">
                                 <img id="profileAvatar" class="profile-avatar" src="https://i.pravatar.cc/200?img=1" alt="">
                             </div>
@@ -1122,7 +1454,7 @@
                     </div>
 
                     <!-- Verification Request Card -->
-                    <div id="verificationCard" class="card verification-card">
+                    <div id="verificationCard" class="card verification-card animate-slide">
                         <div class="card-body">
                             <div class="verification-icon"><i class="fas fa-check"></i></div>
                             <h3>Хотите получить галочку верификации?</h3>
@@ -1130,8 +1462,30 @@
                             <button class="btn btn-primary" onclick="openVerificationModal()">Подать заявку</button>
                         </div>
                     </div>
+                    
+                    <!-- Telegram Link Card -->
+                    <div id="telegramLinkCard" class="card telegram-link-card animate-slide">
+                        <div class="card-header">
+                            <h3><i class="fab fa-telegram"></i> Привязать Telegram</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 16px; opacity: 0.9;">Привяжите Telegram для быстрого входа и уведомлений</p>
+                            <div id="profileTelegramWidget" style="display: flex; justify-content: center;"></div>
+                        </div>
+                    </div>
 
                     <div id="profilePosts"></div>
+                </div>
+                
+                <!-- Notifications Section (for mobile) -->
+                <div id="notificationsSection" class="section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Уведомления</h3>
+                            <button class="btn btn-secondary btn-sm" onclick="openNotifSettings()"><i class="fas fa-cog"></i></button>
+                        </div>
+                        <div id="notificationsFullList"></div>
+                    </div>
                 </div>
 
                 <!-- Messages Section -->
@@ -1188,9 +1542,9 @@
 
                 <!-- Settings Section -->
                 <div id="settingsSection" class="section">
-                    <div class="card">
+                    <div class="card animate-slide">
                         <div class="card-header">
-                            <h3>Настройки</h3>
+                            <h3>Настройки профиля</h3>
                         </div>
                         <div class="card-body">
                             <div class="form-group">
@@ -1203,9 +1557,65 @@
                             </div>
                             <div class="form-group">
                                 <label>Аватарка</label>
-                                <input type="file" id="settingsAvatar" class="form-control" accept="image/*">
+                                <div class="custom-file-input">
+                                    <div class="custom-file-btn" id="avatarFileBtn">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Выбрать изображение</span>
+                                    </div>
+                                    <input type="file" id="settingsAvatar" accept="image/*" onchange="updateFileLabel(this, 'avatarFileBtn')">
+                                </div>
                             </div>
                             <button class="btn btn-primary" onclick="saveSettings()">Сохранить</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Notification Settings -->
+                    <div class="card animate-slide">
+                        <div class="card-header">
+                            <h3>Уведомления</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="notif-setting-item">
+                                <span><i class="fas fa-user-plus" style="margin-right: 10px; color: var(--primary);"></i> Новые подписчики</span>
+                                <div class="toggle-switch active" data-setting="notif_followers" onclick="toggleNotifSetting(this)"></div>
+                            </div>
+                            <div class="notif-setting-item">
+                                <span><i class="fas fa-comment" style="margin-right: 10px; color: var(--success);"></i> Комментарии</span>
+                                <div class="toggle-switch active" data-setting="notif_comments" onclick="toggleNotifSetting(this)"></div>
+                            </div>
+                            <div class="notif-setting-item">
+                                <span><i class="fas fa-heart" style="margin-right: 10px; color: var(--danger);"></i> Лайки</span>
+                                <div class="toggle-switch active" data-setting="notif_likes" onclick="toggleNotifSetting(this)"></div>
+                            </div>
+                            <div class="notif-setting-item">
+                                <span><i class="fas fa-envelope" style="margin-right: 10px; color: var(--primary);"></i> Личные сообщения</span>
+                                <div class="toggle-switch active" data-setting="notif_messages" onclick="toggleNotifSetting(this)"></div>
+                            </div>
+                            <div class="notif-setting-item">
+                                <span><i class="fas fa-share" style="margin-right: 10px; color: #9c27b0;"></i> Репосты</span>
+                                <div class="toggle-switch active" data-setting="notif_reposts" onclick="toggleNotifSetting(this)"></div>
+                            </div>
+                            <div class="notif-setting-item">
+                                <span><i class="fas fa-phone" style="margin-right: 10px; color: var(--success);"></i> Звонки</span>
+                                <div class="toggle-switch active" data-setting="notif_calls" onclick="toggleNotifSetting(this)"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Call Settings -->
+                    <div class="card animate-slide">
+                        <div class="card-header">
+                            <h3>Звонки</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="notif-setting-item">
+                                <span>Разрешить звонки от всех</span>
+                                <div class="toggle-switch active" data-setting="calls_all" onclick="toggleNotifSetting(this)"></div>
+                            </div>
+                            <div class="notif-setting-item">
+                                <span>Только от друзей</span>
+                                <div class="toggle-switch" data-setting="calls_friends" onclick="toggleNotifSetting(this)"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1237,6 +1647,7 @@
         <div class="chat-window-header">
             <img id="chatPartnerAvatar" src="https://i.pravatar.cc/100" alt="">
             <div class="name" id="chatPartnerName">Имя</div>
+            <button onclick="startCall()" title="Позвонить"><i class="fas fa-phone"></i></button>
             <button onclick="closeChatWindow()"><i class="fas fa-times"></i></button>
         </div>
         <div class="chat-messages" id="chatMessages"></div>
@@ -1303,6 +1714,135 @@
     <!-- Image Viewer Modal -->
     <div class="modal-overlay" id="imageViewerModal" onclick="closeModal('imageViewerModal')">
         <img id="viewerImage" style="max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+    </div>
+    
+    <!-- Cover Options Modal -->
+    <div class="modal-overlay" id="coverOptionsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Изменить обложку</h2>
+                <button class="modal-close" onclick="closeModal('coverOptionsModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; gap: 12px;">
+                    <div class="custom-file-input">
+                        <div class="custom-file-btn" id="coverFileBtn">
+                            <i class="fas fa-image"></i>
+                            <span>Загрузить изображение</span>
+                        </div>
+                        <input type="file" id="coverImageInput" accept="image/*" onchange="uploadCoverImage(this)">
+                    </div>
+                    <button class="btn btn-secondary btn-block" onclick="openDrawModal()">
+                        <i class="fas fa-paint-brush"></i> Нарисовать
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Draw Cover Modal -->
+    <div class="modal-overlay draw-modal" id="drawModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Нарисовать обложку</h2>
+                <button class="modal-close" onclick="closeModal('drawModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="draw-tools">
+                    <button class="active" onclick="setDrawTool('brush', this)"><i class="fas fa-paint-brush"></i></button>
+                    <button onclick="setDrawTool('eraser', this)"><i class="fas fa-eraser"></i></button>
+                    <input type="color" id="drawColor" value="#5181b8" onchange="setDrawColor(this.value)">
+                    <input type="range" id="drawSize" min="2" max="30" value="5" onchange="setDrawSize(this.value)">
+                    <button onclick="clearCanvas()"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="draw-canvas-container">
+                    <canvas id="drawCanvas" class="draw-canvas"></canvas>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="saveCoverDrawing()">Сохранить как обложку</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rules Modal -->
+    <div class="modal-overlay" id="rulesModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Правила сообщества</h2>
+                <button class="modal-close" onclick="closeModal('rulesModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <ul class="rules-list">
+                    <li>
+                        <div class="rule-icon"><i class="fas fa-ban"></i></div>
+                        <div>
+                            <strong>Запрещён контент 18+</strong>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Порнография, откровенные изображения и видео</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="rule-icon"><i class="fas fa-comment-slash"></i></div>
+                        <div>
+                            <strong>Запрещены оскорбления и мат</strong>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Уважайте других пользователей</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="rule-icon"><i class="fas fa-skull-crossbones"></i></div>
+                        <div>
+                            <strong>Запрещено насилие и угрозы</strong>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Любые формы угроз и призывов к насилию</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="rule-icon"><i class="fas fa-ad"></i></div>
+                        <div>
+                            <strong>Запрещён спам и реклама</strong>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Без согласования с администрацией</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="rule-icon"><i class="fas fa-user-secret"></i></div>
+                        <div>
+                            <strong>Запрещена публикация личных данных</strong>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Без согласия владельца</p>
+                        </div>
+                    </li>
+                </ul>
+                <div class="rules-accept">
+                    <input type="checkbox" id="rulesAccept">
+                    <label for="rulesAccept" style="font-size: 14px; cursor: pointer;">Я принимаю правила сообщества</label>
+                </div>
+                <button class="btn btn-primary btn-block" style="margin-top: 16px;" onclick="acceptRules()" id="acceptRulesBtn" disabled>Продолжить</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Settings Modal -->
+    <div class="modal-overlay" id="notifSettingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Настройки уведомлений</h2>
+                <button class="modal-close" onclick="closeModal('notifSettingsModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="card-body">
+                <div class="notif-setting-item">
+                    <span>Новые подписчики</span>
+                    <div class="toggle-switch active" data-setting="notif_followers" onclick="toggleNotifSetting(this)"></div>
+                </div>
+                <div class="notif-setting-item">
+                    <span>Комментарии</span>
+                    <div class="toggle-switch active" data-setting="notif_comments" onclick="toggleNotifSetting(this)"></div>
+                </div>
+                <div class="notif-setting-item">
+                    <span>Лайки</span>
+                    <div class="toggle-switch active" data-setting="notif_likes" onclick="toggleNotifSetting(this)"></div>
+                </div>
+                <div class="notif-setting-item">
+                    <span>Сообщения</span>
+                    <div class="toggle-switch active" data-setting="notif_messages" onclick="toggleNotifSetting(this)"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -1722,13 +2262,18 @@
                             <i class="fas fa-comment"></i>
                             <span>${commentsCount}</span>
                         </button>
-                        <button class="post-action" onclick="sharePost('${post.id}')">
-                            <i class="fas fa-share"></i>
+                        <button class="post-action" onclick="repostPost('${post.id}')">
+                            <i class="fas fa-retweet"></i>
+                            <span>${post.reposts || 0}</span>
+                        </button>
+                        <button class="post-action" onclick="recordVoiceComment('${post.id}')" title="Голосовой комментарий">
+                            <i class="fas fa-microphone"></i>
                         </button>
                         <button class="post-action" onclick="bookmarkPost('${post.id}')">
                             <i class="fas fa-bookmark"></i>
                         </button>
                     </div>
+                    ${post.repostedFrom ? '<div style="padding: 8px 16px; font-size: 12px; color: var(--text-secondary);"><i class="fas fa-retweet"></i> Репост от @' + post.repostedFrom + '</div>' : ''}
                 </article>
             `;
         }
@@ -2342,6 +2887,584 @@
                 document.getElementById('notificationsDropdown').classList.remove('active');
             }
         });
+        
+        // ============ TOAST NOTIFICATIONS ============
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { success: 'fa-check', error: 'fa-times', info: 'fa-bell', warning: 'fa-exclamation' };
+            
+            toast.innerHTML = `
+                <div class="toast-icon ${type}"><i class="fas ${icons[type] || icons.info}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+        
+        // ============ AI MODERATION ============
+        const POLLINATIONS_API_KEY = 'sk_MIrJoVngM6GGtVhfAbmYFlRvOAHCllqc';
+        
+        async function moderateContent(text, imageBase64 = null) {
+            try {
+                const messages = [{
+                    role: 'system',
+                    content: 'Ты модератор контента. Проверь текст на наличие: мата, оскорблений, 18+ контента, насилия, угроз. Ответь только JSON: {"safe": true/false, "reason": "причина если не safe"}'
+                }, {
+                    role: 'user',
+                    content: imageBase64 ? [
+                        { type: 'text', text: `Проверь этот текст: "${text}"` },
+                        { type: 'image_url', image_url: { url: imageBase64 } }
+                    ] : `Проверь этот текст на нарушения: "${text}"`
+                }];
+                
+                const response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${POLLINATIONS_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ model: 'openai', messages })
+                });
+                
+                const data = await response.json();
+                const content = data.choices?.[0]?.message?.content || '{"safe": true}';
+                
+                try {
+                    return JSON.parse(content.replace(/```json|```/g, '').trim());
+                } catch {
+                    return { safe: true };
+                }
+            } catch (error) {
+                console.error('Moderation error:', error);
+                return { safe: true }; // Allow if moderation fails
+            }
+        }
+        
+        async function createPostWithModeration(text, image, voiceMessage) {
+            // Show nothing to user, moderate in background
+            const postData = {
+                text,
+                image,
+                voiceMessage,
+                authorId: currentUser.id,
+                authorName: currentUser.name,
+                authorAvatar: currentUser.avatar,
+                authorVerified: currentUser.verified || false,
+                authorSuperVerified: currentUser.superVerified || false,
+                createdAt: Date.now(),
+                likes: {},
+                comments: {},
+                pending: true // Mark as pending moderation
+            };
+            
+            const postRef = db.ref('posts').push(postData);
+            
+            // Moderate in background
+            const result = await moderateContent(text, image);
+            
+            if (result.safe) {
+                db.ref('posts/' + postRef.key + '/pending').remove();
+            } else {
+                db.ref('posts/' + postRef.key).remove();
+                showToast('Контент отклонён', result.reason || 'Нарушение правил сообщества', 'error');
+            }
+        }
+        
+        // ============ CALLS ============
+        let callTimer = null;
+        let callSeconds = 0;
+        let isMuted = false;
+        let isSpeaker = false;
+        
+        function startCall() {
+            if (!currentChatPartner) return;
+            
+            document.getElementById('callAvatar').src = currentChatPartner.avatar;
+            document.getElementById('callName').textContent = currentChatPartner.name;
+            document.getElementById('callStatus').textContent = 'Вызов...';
+            document.getElementById('callTimer').style.display = 'none';
+            document.getElementById('callModal').classList.add('active');
+            
+            // Simulate call connecting
+            setTimeout(() => {
+                document.getElementById('callStatus').textContent = 'Соединение...';
+                setTimeout(() => {
+                    document.getElementById('callStatus').style.display = 'none';
+                    document.getElementById('callTimer').style.display = 'block';
+                    startCallTimer();
+                }, 2000);
+            }, 2000);
+            
+            // Notify other user (in real app)
+            db.ref('calls/' + currentChatPartner.id).set({
+                from: currentUser.id,
+                fromName: currentUser.name,
+                fromAvatar: currentUser.avatar,
+                status: 'calling',
+                timestamp: Date.now()
+            });
+        }
+        
+        function startCallTimer() {
+            callSeconds = 0;
+            callTimer = setInterval(() => {
+                callSeconds++;
+                const mins = Math.floor(callSeconds / 60).toString().padStart(2, '0');
+                const secs = (callSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('callTimer').textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+        
+        function endCall() {
+            if (callTimer) clearInterval(callTimer);
+            document.getElementById('callModal').classList.remove('active');
+            document.getElementById('callStatus').style.display = 'block';
+            
+            if (currentChatPartner) {
+                db.ref('calls/' + currentChatPartner.id).remove();
+            }
+            
+            if (callSeconds > 0) {
+                showToast('Звонок завершён', `Длительность: ${Math.floor(callSeconds / 60)}:${(callSeconds % 60).toString().padStart(2, '0')}`, 'info');
+            }
+        }
+        
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('muteBtn');
+            btn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+            btn.style.background = isMuted ? 'var(--danger)' : 'rgba(255,255,255,0.2)';
+        }
+        
+        function toggleSpeaker() {
+            isSpeaker = !isSpeaker;
+            const btn = document.getElementById('speakerBtn');
+            btn.style.background = isSpeaker ? 'var(--primary)' : 'rgba(255,255,255,0.2)';
+        }
+        
+        // Listen for incoming calls
+        function listenForCalls() {
+            if (!currentUser) return;
+            db.ref('calls/' + currentUser.id).on('value', snapshot => {
+                if (snapshot.exists()) {
+                    const call = snapshot.val();
+                    if (call.status === 'calling') {
+                        showIncomingCall(call);
+                    }
+                }
+            });
+        }
+        
+        function showIncomingCall(call) {
+            if (confirm(`Входящий звонок от ${call.fromName}. Принять?`)) {
+                document.getElementById('callAvatar').src = call.fromAvatar;
+                document.getElementById('callName').textContent = call.fromName;
+                document.getElementById('callStatus').textContent = 'Подключено';
+                document.getElementById('callModal').classList.add('active');
+                setTimeout(() => {
+                    document.getElementById('callStatus').style.display = 'none';
+                    document.getElementById('callTimer').style.display = 'block';
+                    startCallTimer();
+                }, 1000);
+            } else {
+                db.ref('calls/' + currentUser.id).remove();
+            }
+        }
+        
+        // ============ REPOSTS ============
+        function repostPost(postId) {
+            if (isReadOnly) {
+                showToast('Ошибка', 'Сайт в режиме только чтение', 'error');
+                return;
+            }
+            
+            db.ref('posts/' + postId).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const originalPost = snapshot.val();
+                    
+                    const repostData = {
+                        text: originalPost.text,
+                        image: originalPost.image,
+                        authorId: currentUser.id,
+                        authorName: currentUser.name,
+                        authorAvatar: currentUser.avatar,
+                        authorVerified: currentUser.verified || false,
+                        authorSuperVerified: currentUser.superVerified || false,
+                        createdAt: Date.now(),
+                        repostedFrom: originalPost.authorName,
+                        originalPostId: postId,
+                        likes: {},
+                        comments: {}
+                    };
+                    
+                    db.ref('posts').push(repostData);
+                    
+                    // Increment repost count
+                    db.ref('posts/' + postId + '/reposts').transaction(count => (count || 0) + 1);
+                    
+                    showToast('Репост', 'Публикация добавлена на вашу стену', 'success');
+                }
+            });
+        }
+        
+        // ============ VOICE COMMENTS ============
+        function recordVoiceComment(postId) {
+            if (isReadOnly) {
+                showToast('Ошибка', 'Сайт в режиме только чтение', 'error');
+                return;
+            }
+            
+            if (!navigator.mediaDevices) {
+                showToast('Ошибка', 'Браузер не поддерживает запись', 'error');
+                return;
+            }
+            
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    showToast('Запись', 'Говорите... Нажмите OK для остановки', 'info');
+                    
+                    const recorder = new MediaRecorder(stream);
+                    const chunks = [];
+                    
+                    recorder.ondataavailable = e => chunks.push(e.data);
+                    recorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            db.ref('posts/' + postId + '/comments').push({
+                                voiceMessage: reader.result,
+                                authorId: currentUser.id,
+                                authorName: currentUser.name,
+                                authorAvatar: currentUser.avatar,
+                                createdAt: Date.now()
+                            });
+                            showToast('Готово', 'Голосовой комментарий добавлен', 'success');
+                        };
+                        reader.readAsDataURL(blob);
+                        stream.getTracks().forEach(t => t.stop());
+                    };
+                    
+                    recorder.start();
+                    setTimeout(() => recorder.stop(), 15000); // Max 15 seconds
+                    
+                    // Allow early stop
+                    setTimeout(() => {
+                        if (recorder.state === 'recording' && confirm('Остановить запись?')) {
+                            recorder.stop();
+                        }
+                    }, 3000);
+                })
+                .catch(err => showToast('Ошибка', 'Нет доступа к микрофону', 'error'));
+        }
+        
+        // ============ COVER IMAGE ============
+        function openCoverOptions() {
+            document.getElementById('coverOptionsModal').classList.add('active');
+        }
+        
+        function uploadCoverImage(input) {
+            if (input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileCover').src = e.target.result;
+                    db.ref('users/' + currentUser.id + '/cover').set(e.target.result);
+                    currentUser.cover = e.target.result;
+                    closeModal('coverOptionsModal');
+                    showToast('Успешно', 'Обложка обновлена', 'success');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // ============ DRAW CANVAS ============
+        let drawCtx, drawCanvas, isDrawing = false, drawColor = '#5181b8', drawSize = 5, drawTool = 'brush';
+        
+        function openDrawModal() {
+            closeModal('coverOptionsModal');
+            document.getElementById('drawModal').classList.add('active');
+            initCanvas();
+        }
+        
+        function initCanvas() {
+            drawCanvas = document.getElementById('drawCanvas');
+            drawCtx = drawCanvas.getContext('2d');
+            
+            // Set canvas size
+            const container = drawCanvas.parentElement;
+            drawCanvas.width = container.offsetWidth;
+            drawCanvas.height = 200;
+            
+            // White background
+            drawCtx.fillStyle = '#ffffff';
+            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+            
+            // Event listeners
+            drawCanvas.addEventListener('mousedown', startDraw);
+            drawCanvas.addEventListener('mousemove', draw);
+            drawCanvas.addEventListener('mouseup', stopDraw);
+            drawCanvas.addEventListener('mouseout', stopDraw);
+            
+            // Touch support
+            drawCanvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e.touches[0]); });
+            drawCanvas.addEventListener('touchmove', e => { e.preventDefault(); draw(e.touches[0]); });
+            drawCanvas.addEventListener('touchend', stopDraw);
+        }
+        
+        function startDraw(e) {
+            isDrawing = true;
+            draw(e);
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            drawCtx.lineWidth = drawSize;
+            drawCtx.lineCap = 'round';
+            drawCtx.strokeStyle = drawTool === 'eraser' ? '#ffffff' : drawColor;
+            
+            drawCtx.lineTo(x, y);
+            drawCtx.stroke();
+            drawCtx.beginPath();
+            drawCtx.moveTo(x, y);
+        }
+        
+        function stopDraw() {
+            isDrawing = false;
+            drawCtx.beginPath();
+        }
+        
+        function setDrawTool(tool, btn) {
+            drawTool = tool;
+            document.querySelectorAll('.draw-tools button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        
+        function setDrawColor(color) { drawColor = color; }
+        function setDrawSize(size) { drawSize = size; }
+        
+        function clearCanvas() {
+            drawCtx.fillStyle = '#ffffff';
+            drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+        }
+        
+        function saveCoverDrawing() {
+            const dataUrl = drawCanvas.toDataURL('image/png');
+            document.getElementById('profileCover').src = dataUrl;
+            db.ref('users/' + currentUser.id + '/cover').set(dataUrl);
+            currentUser.cover = dataUrl;
+            closeModal('drawModal');
+            showToast('Успешно', 'Обложка сохранена', 'success');
+        }
+        
+        // ============ CUSTOM FILE INPUT ============
+        function updateFileLabel(input, btnId) {
+            const btn = document.getElementById(btnId);
+            if (input.files[0]) {
+                btn.classList.add('has-file');
+                btn.querySelector('span').textContent = input.files[0].name;
+            } else {
+                btn.classList.remove('has-file');
+            }
+        }
+        
+        // ============ NOTIFICATION SETTINGS ============
+        let notifSettings = {
+            notif_followers: true,
+            notif_comments: true,
+            notif_likes: true,
+            notif_messages: true,
+            notif_reposts: true,
+            notif_calls: true,
+            calls_all: true,
+            calls_friends: false
+        };
+        
+        function toggleNotifSetting(el) {
+            el.classList.toggle('active');
+            const setting = el.dataset.setting;
+            notifSettings[setting] = el.classList.contains('active');
+            localStorage.setItem('chegoStenaNotifSettings', JSON.stringify(notifSettings));
+        }
+        
+        function loadNotifSettings() {
+            const saved = localStorage.getItem('chegoStenaNotifSettings');
+            if (saved) {
+                notifSettings = JSON.parse(saved);
+                Object.keys(notifSettings).forEach(key => {
+                    const el = document.querySelector(`[data-setting="${key}"]`);
+                    if (el) el.classList.toggle('active', notifSettings[key]);
+                });
+            }
+        }
+        
+        function openNotifSettings() {
+            document.getElementById('notifSettingsModal').classList.add('active');
+        }
+        
+        // ============ RULES ============
+        function openRulesModal() {
+            document.getElementById('rulesModal').classList.add('active');
+        }
+        
+        document.getElementById('rulesAccept')?.addEventListener('change', function() {
+            document.getElementById('acceptRulesBtn').disabled = !this.checked;
+        });
+        
+        function acceptRules() {
+            closeModal('rulesModal');
+        }
+        
+        // ============ PROFILE POST ============
+        function previewProfilePostImage(input) {
+            if (input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('profilePreviewImg').src = e.target.result;
+                    document.getElementById('profilePostImagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function removeProfilePostImage() {
+            document.getElementById('profilePostImagePreview').style.display = 'none';
+            document.getElementById('profilePostImage').value = '';
+        }
+        
+        async function createProfilePost() {
+            if (isReadOnly) {
+                showToast('Ошибка', 'Сайт в режиме только чтение', 'error');
+                return;
+            }
+            
+            const text = document.getElementById('profilePostText').value.trim();
+            const imagePreview = document.getElementById('profilePreviewImg').src;
+            const hasImage = document.getElementById('profilePostImagePreview').style.display !== 'none';
+            
+            if (!text && !hasImage) {
+                showToast('Ошибка', 'Напишите что-нибудь', 'warning');
+                return;
+            }
+            
+            await createPostWithModeration(text, hasImage ? imagePreview : null, null);
+            
+            document.getElementById('profilePostText').value = '';
+            removeProfilePostImage();
+            showToast('Опубликовано', 'Ваш пост добавлен', 'success');
+        }
+        
+        // ============ TELEGRAM LINK ============
+        function loadProfileTelegramWidget() {
+            if (currentUser && currentUser.provider !== 'telegram') {
+                const container = document.getElementById('profileTelegramWidget');
+                if (container) {
+                    container.innerHTML = '';
+                    const script = document.createElement('script');
+                    script.async = true;
+                    script.src = 'https://telegram.org/js/telegram-widget.js?22';
+                    script.setAttribute('data-telegram-login', 'VriskasHelperBot');
+                    script.setAttribute('data-size', 'medium');
+                    script.setAttribute('data-onauth', 'linkTelegram(user)');
+                    script.setAttribute('data-request-access', 'write');
+                    container.appendChild(script);
+                }
+                document.getElementById('telegramLinkCard').style.display = 'block';
+            } else {
+                document.getElementById('telegramLinkCard').style.display = 'none';
+            }
+        }
+        
+        window.linkTelegram = function(user) {
+            db.ref('users/' + currentUser.id).update({
+                telegramId: user.id,
+                telegramUsername: user.username
+            });
+            currentUser.telegramId = user.id;
+            showToast('Telegram привязан', `Аккаунт @${user.username} привязан`, 'success');
+            document.getElementById('telegramLinkCard').style.display = 'none';
+        };
+        
+        // ============ MOBILE NAV ANIMATION ============
+        function updateMobileNav(sectionId) {
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // Update showSection to use mobile nav
+        const originalShowSection = showSection;
+        showSection = function(sectionId) {
+            originalShowSection(sectionId);
+            updateMobileNav(sectionId);
+        };
+        
+        // ============ LOAD ADDITIONAL DATA ============
+        function loadFullNotifications() {
+            const list = document.getElementById('notificationsFullList');
+            if (!list) return;
+            
+            db.ref('notifications/' + currentUser.id).limitToLast(30).on('value', snapshot => {
+                let html = '';
+                snapshot.forEach(child => {
+                    const notif = child.val();
+                    html = `
+                        <div class="notif-item ${notif.read ? '' : 'unread'}" onclick="markNotifRead('${child.key}')">
+                            <img src="${notif.fromAvatar || 'https://i.pravatar.cc/100'}">
+                            <div class="notif-content">
+                                <div class="notif-text">${notif.text}</div>
+                                <div class="notif-time">${new Date(notif.createdAt).toLocaleString('ru-RU')}</div>
+                            </div>
+                        </div>
+                    ` + html;
+                });
+                list.innerHTML = html || '<p style="padding: 16px; color: var(--text-secondary);">Нет уведомлений</p>';
+            });
+        }
+        
+        // Update loginSuccess
+        const originalLoginSuccess = loginSuccess;
+        loginSuccess = function() {
+            originalLoginSuccess();
+            loadNotifSettings();
+            loadProfileTelegramWidget();
+            loadFullNotifications();
+            listenForCalls();
+            
+            // Update mobile badges
+            db.ref('notifications/' + currentUser.id).on('value', snapshot => {
+                let count = 0;
+                snapshot.forEach(child => { if (!child.val().read) count++; });
+                const badge = document.getElementById('mobileNotifBadge');
+                badge.textContent = count;
+                badge.style.display = count > 0 ? 'block' : 'none';
+            });
+        };
+        
+        // Demo notifications on load
+        setTimeout(() => {
+            if (currentUser) {
+                showToast('Добро пожаловать!', `Привет, ${currentUser.name}!`, 'success');
+            }
+        }, 2000);
     </script>
 </body>
 </html>
