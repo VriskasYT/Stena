@@ -144,17 +144,13 @@
             --accent: #8b5cf6;
         }
         
-        /* Dark theme based on time */
+        /* System dark theme preference - DISABLED, we use manual toggle 
         @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-card: #1e293b;
-                --text: #f1f5f9;
-                --text-secondary: #94a3b8;
-                --border: #334155;
-            }
-            body { background: #0f172a; }
+            -- styles disabled --
         }
+        */
         
+        /* Dark theme - DISABLED BY DEFAULT, only via user preference or toggle */
         body.dark-theme {
             --bg-card: #1e293b;
             --text: #f1f5f9;
@@ -165,69 +161,85 @@
         
         body.dark-theme .card,
         body.dark-theme .modal,
+        body.dark-theme .modal-overlay .modal,
         body.dark-theme .chat-window,
         body.dark-theme .nav-menu,
-        body.dark-theme .notifications-dropdown {
-            background: var(--bg-card);
-            color: var(--text);
+        body.dark-theme .notifications-dropdown,
+        body.dark-theme .auth-card {
+            background: var(--bg-card) !important;
+            color: var(--text) !important;
         }
         
         body.dark-theme .form-control,
         body.dark-theme input,
-        body.dark-theme textarea {
-            background: #0f172a;
-            color: var(--text);
-            border-color: var(--border);
+        body.dark-theme textarea,
+        body.dark-theme select {
+            background: #0f172a !important;
+            color: var(--text) !important;
+            border-color: var(--border) !important;
+        }
+        
+        body.dark-theme .form-control::placeholder,
+        body.dark-theme input::placeholder,
+        body.dark-theme textarea::placeholder {
+            color: var(--text-secondary) !important;
         }
         
         body.dark-theme .btn-secondary {
-            background: #334155;
-            color: var(--text);
+            background: #334155 !important;
+            color: var(--text) !important;
         }
         
         body.dark-theme .post-menu-dropdown,
         body.dark-theme .mobile-nav {
-            background: var(--bg-card);
+            background: var(--bg-card) !important;
         }
         
         body.dark-theme .chat-item:hover,
         body.dark-theme .nav-item:hover,
         body.dark-theme .notif-item:hover {
-            background: #334155;
+            background: #334155 !important;
         }
         
         body.dark-theme .post-action:hover {
-            background: #334155;
+            background: #334155 !important;
         }
         
         body.dark-theme .message.incoming {
-            background: #334155;
+            background: #334155 !important;
         }
         
         body.dark-theme .custom-file-btn {
-            background: #1e293b;
-            border-color: var(--border);
+            background: #1e293b !important;
+            border-color: var(--border) !important;
         }
         
-        /* Loading Screen - ПРОСТАЯ ВЕРСИЯ */
-        .loading-screen {
-            position: fixed; 
-            inset: 0; 
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            z-index: 10000; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
+        body.dark-theme .post-text,
+        body.dark-theme .post-author,
+        body.dark-theme .chat-name,
+        body.dark-theme h1, body.dark-theme h2, body.dark-theme h3,
+        body.dark-theme .card-header h3,
+        body.dark-theme .profile-name,
+        body.dark-theme .modal-header h2,
+        body.dark-theme label {
+            color: var(--text) !important;
         }
-        .loading-logo { font-size: 48px; color: white; margin-bottom: 24px; animation: pulse 1.5s infinite; }
-        .loading-logo i { margin-right: 12px; }
-        .loading-spinner {
-            width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;
+        
+        body.dark-theme .auth-logo h1 {
+            color: var(--primary) !important;
         }
+        
+        body.dark-theme .auth-divider,
+        body.dark-theme .auth-switch,
+        body.dark-theme .profile-bio,
+        body.dark-theme .post-time {
+            color: var(--text-secondary) !important;
+        }
+        
+        /* Light theme is DEFAULT - no special styles needed */
+        
+        /* Spin animation for loading */
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: rgba(255,255,255,0.9); margin-top: 20px; font-size: 14px; }
 
         /* Модальные окна */
         .modal-overlay {
@@ -1226,29 +1238,24 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen - автоскрытие через CSS анимацию -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-logo"><i class="fas fa-layer-group"></i>ЧегоСтена</div>
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Загрузка...</div>
+    <!-- Loading Screen - ПОЛНОСТЬЮ ПРОСТАЯ ВЕРСИЯ -->
+    <div id="loadingScreen" style="position:fixed;inset:0;background:linear-gradient(135deg,#6366f1,#8b5cf6);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="font-size:48px;color:white;margin-bottom:24px;"><i class="fas fa-layer-group"></i> ЧегоСтена</div>
+        <div style="width:50px;height:50px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 1s linear infinite;"></div>
     </div>
-    <style>
-        /* ГАРАНТИРОВАННОЕ скрытие загрузки через 2 секунды на ЧИСТОМ CSS */
-        #loadingScreen {
-            animation: hideLoading 0.5s ease-out 2s forwards !important;
-        }
-        @keyframes hideLoading {
-            0% { opacity: 1; visibility: visible; }
-            99% { opacity: 0; visibility: visible; }
-            100% { opacity: 0; visibility: hidden; pointer-events: none; z-index: -1; }
-        }
-    </style>
     <script>
-        // Дополнительная гарантия на JS - скрыть через 2.5 секунды
+        // ГАРАНТИРОВАННО скрыть загрузку через 1 секунду
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var l = document.getElementById('loadingScreen');
+                if (l) l.style.display = 'none';
+            }, 800);
+        });
+        // Резервный таймер - скрыть через 2 секунды в любом случае
         setTimeout(function() {
-            var ls = document.getElementById('loadingScreen');
-            if (ls) { ls.style.display = 'none'; ls.remove(); }
-        }, 2500);
+            var l = document.getElementById('loadingScreen');
+            if (l) l.style.display = 'none';
+        }, 2000);
     </script>
 
     <!-- Auth Screen -->
@@ -1662,6 +1669,20 @@
 
                 <!-- Settings Section -->
                 <div id="settingsSection" class="section">
+                    <!-- Theme Toggle Card -->
+                    <div class="card animate-slide">
+                        <div class="card-header">
+                            <h3>Внешний вид</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="notif-setting-item">
+                                <span><i class="fas fa-moon" style="margin-right: 10px; color: var(--accent);"></i> Тёмная тема</span>
+                                <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()"></div>
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Тема автоматически меняется с 21:00 до 6:00</p>
+                        </div>
+                    </div>
+                    
                     <div class="card animate-slide">
                         <div class="card-header">
                             <h3>Настройки профиля</h3>
@@ -2033,53 +2054,62 @@
             }
         }
 
+        // Simple hide loading function
+        function hideLoading() {
+            var l = document.getElementById('loadingScreen');
+            if (l) l.style.display = 'none';
+        }
+
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
-            // СРАЗУ скрываем загрузку через 1.5 секунды МАКСИМУМ
-            // Это гарантия что она всегда пропадёт
-            setTimeout(hideLoadingScreen, 1500);
-            
-            // Set theme based on time
+            // Set theme based on saved preference or time
             setThemeByTime();
             
+            // Update theme toggle state
+            setTimeout(function() {
+                const toggle = document.getElementById('themeToggle');
+                if (toggle && document.body.classList.contains('dark-theme')) {
+                    toggle.classList.add('active');
+                }
+            }, 100);
+            
             // Load Telegram widgets
-            setTimeout(() => {
+            setTimeout(function() {
                 loadTelegramWidget('telegramLoginWidget');
                 loadTelegramWidget('telegramRegWidget');
             }, 500);
             
             // Check for saved user
-            const savedUser = localStorage.getItem('chegoStenaUser');
+            var savedUser = localStorage.getItem('chegoStenaUser');
             if (savedUser) {
                 try {
                     currentUser = JSON.parse(savedUser);
-                    db.ref('users/' + currentUser.id).once('value').then(snapshot => {
-                        hideLoadingScreen(); // Скрываем при успехе
+                    db.ref('users/' + currentUser.id).once('value').then(function(snapshot) {
+                        hideLoading();
                         if (snapshot.exists()) {
-                            currentUser = {...snapshot.val(), id: currentUser.id};
+                            currentUser = Object.assign({}, snapshot.val(), {id: currentUser.id});
                             loginSuccess();
                         } else {
                             localStorage.removeItem('chegoStenaUser');
                         }
-                    }).catch((err) => {
+                    }).catch(function(err) {
                         console.error('Firebase error:', err);
-                        hideLoadingScreen(); // Скрываем при ошибке
+                        hideLoading();
                     });
                 } catch (e) {
                     console.error('Parse error:', e);
                     localStorage.removeItem('chegoStenaUser');
-                    hideLoadingScreen(); // Скрываем при ошибке парсинга
+                    hideLoading();
                 }
             } else {
-                // Нет сохранённого пользователя - сразу скрываем загрузку
-                hideLoadingScreen();
+                hideLoading();
             }
 
             // Check readonly mode
-            db.ref('settings/readOnly').on('value', snapshot => {
+            db.ref('settings/readOnly').on('value', function(snapshot) {
                 isReadOnly = snapshot.val() === true;
-                const banner = document.getElementById('readonlyBanner');
-                const container = document.getElementById('mainContainer');
+                var banner = document.getElementById('readonlyBanner');
+                var container = document.getElementById('mainContainer');
                 if (banner) banner.classList.toggle('active', isReadOnly);
                 if (container) container.classList.toggle('with-banner', isReadOnly);
             });
@@ -2089,20 +2119,20 @@
             window.addEventListener('hashchange', handleHashChange);
         });
         
-        function hideLoadingScreen() {
-            const loading = document.getElementById('loadingScreen');
-            if (loading) {
-                // Просто удаляем элемент - никаких анимаций, никаких классов
-                loading.style.display = 'none';
-                // Также можно удалить полностью
-                loading.remove();
-            }
-        }
-        
         function setThemeByTime() {
-            const hour = new Date().getHours();
-            // Dark theme from 20:00 (8 PM) to 7:00 (7 AM)
-            const isDark = hour >= 20 || hour < 7;
+            // Check saved preference first
+            const savedTheme = localStorage.getItem('chegoStenaTheme');
+            let isDark = false;
+            
+            if (savedTheme === 'dark') {
+                isDark = true;
+            } else if (savedTheme === 'light') {
+                isDark = false;
+            } else if (savedTheme === 'auto' || !savedTheme) {
+                // Auto mode - check time
+                const hour = new Date().getHours();
+                isDark = hour >= 21 || hour < 6; // 21:00 - 6:00
+            }
             
             document.body.classList.toggle('dark-theme', isDark);
             
@@ -2112,8 +2142,29 @@
                 metaTheme.content = isDark ? '#0f172a' : '#6366f1';
             }
             
-            // Check every 10 minutes
+            // Check every 10 minutes (only matters in auto mode)
             setTimeout(setThemeByTime, 600000);
+        }
+        
+        function toggleTheme() {
+            const isDark = document.body.classList.contains('dark-theme');
+            const newTheme = isDark ? 'light' : 'dark';
+            localStorage.setItem('chegoStenaTheme', newTheme);
+            document.body.classList.toggle('dark-theme', !isDark);
+            
+            // Update toggle button
+            const toggle = document.getElementById('themeToggle');
+            if (toggle) {
+                toggle.classList.toggle('active', !isDark);
+            }
+            
+            // Update meta theme color
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) {
+                metaTheme.content = !isDark ? '#0f172a' : '#6366f1';
+            }
+            
+            showToast('Тема', isDark ? 'Светлая тема включена' : 'Тёмная тема включена', 'info');
         }
 
         function handleHashChange() {
@@ -2284,7 +2335,7 @@
             localStorage.setItem('chegoStenaUser', JSON.stringify(currentUser));
             
             // Hide loading screen
-            hideLoadingScreen();
+            hideLoading();
             
             document.getElementById('authScreen').classList.remove('active');
             document.getElementById('mainApp').style.display = 'block';
