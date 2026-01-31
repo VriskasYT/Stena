@@ -163,6 +163,52 @@
             background: #0f172a !important;
         }
         
+        body.dark-theme .card,
+        body.dark-theme .modal,
+        body.dark-theme .chat-window,
+        body.dark-theme .nav-menu,
+        body.dark-theme .notifications-dropdown {
+            background: var(--bg-card);
+            color: var(--text);
+        }
+        
+        body.dark-theme .form-control,
+        body.dark-theme input,
+        body.dark-theme textarea {
+            background: #0f172a;
+            color: var(--text);
+            border-color: var(--border);
+        }
+        
+        body.dark-theme .btn-secondary {
+            background: #334155;
+            color: var(--text);
+        }
+        
+        body.dark-theme .post-menu-dropdown,
+        body.dark-theme .mobile-nav {
+            background: var(--bg-card);
+        }
+        
+        body.dark-theme .chat-item:hover,
+        body.dark-theme .nav-item:hover,
+        body.dark-theme .notif-item:hover {
+            background: #334155;
+        }
+        
+        body.dark-theme .post-action:hover {
+            background: #334155;
+        }
+        
+        body.dark-theme .message.incoming {
+            background: #334155;
+        }
+        
+        body.dark-theme .custom-file-btn {
+            background: #1e293b;
+            border-color: var(--border);
+        }
+        
         /* Loading Screen */
         .loading-screen {
             position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
@@ -1305,23 +1351,22 @@
                     <i class="fas fa-home"></i>
                     <span>Главная</span>
                 </a>
+                <a class="mobile-nav-item" data-section="friends" onclick="event.preventDefault(); showSection('friends')">
+                    <i class="fas fa-users"></i>
+                    <span>Друзья</span>
+                </a>
+                <a class="mobile-nav-item" data-section="profile" onclick="event.preventDefault(); showSection('profile')">
+                    <i class="fas fa-plus-circle" style="font-size: 28px; color: var(--primary);"></i>
+                    <span>Пост</span>
+                </a>
                 <a class="mobile-nav-item" data-section="messages" onclick="event.preventDefault(); showSection('messages')">
                     <i class="fas fa-comment"></i>
                     <span>Чаты</span>
                     <span class="badge" id="mobileMsgBadge" style="display: none;">0</span>
                 </a>
                 <a class="mobile-nav-item" data-section="profile" onclick="event.preventDefault(); showSection('profile')">
-                    <i class="fas fa-plus-circle" style="font-size: 28px; color: var(--primary);"></i>
-                    <span>Пост</span>
-                </a>
-                <a class="mobile-nav-item" data-section="notifications" onclick="event.preventDefault(); showSection('notifications')">
-                    <i class="fas fa-bell"></i>
-                    <span>Уведом.</span>
-                    <span class="badge" id="mobileNotifBadge" style="display: none;">0</span>
-                </a>
-                <a class="mobile-nav-item" data-section="settings" onclick="event.preventDefault(); showSection('settings')">
-                    <i class="fas fa-cog"></i>
-                    <span>Ещё</span>
+                    <i class="fas fa-user"></i>
+                    <span>Профиль</span>
                 </a>
             </div>
         </nav>
@@ -1345,9 +1390,12 @@
                 </div>
                 
                 <div class="header-actions">
+                    <button class="header-btn" onclick="showSection('settings')" title="Настройки">
+                        <i class="fas fa-cog"></i>
+                    </button>
                     <button class="header-btn" onclick="toggleNotifications()" id="notifBtn">
                         <i class="fas fa-bell"></i>
-                        <span class="badge" id="notifBadge">3</span>
+                        <span class="badge" id="notifBadge" style="display: none;">0</span>
                         <div class="notifications-dropdown" id="notificationsDropdown">
                             <div class="notif-header">Уведомления</div>
                             <div id="notificationsList"></div>
@@ -1355,7 +1403,7 @@
                     </button>
                     <button class="header-btn" onclick="showSection('messages')">
                         <i class="fas fa-comment"></i>
-                        <span class="badge" id="msgBadge">5</span>
+                        <span class="badge" id="msgBadge" style="display: none;">0</span>
                     </button>
                     <div class="user-menu" onclick="showSection('profile')">
                         <img id="headerAvatar" src="https://i.pravatar.cc/100?img=1" alt="">
@@ -1408,16 +1456,11 @@
                     <!-- Search Bar for Feed -->
                     <div class="card" style="margin-bottom: 16px;">
                         <div class="card-body" style="padding: 12px 16px;">
-                            <div style="display: flex; gap: 12px; align-items: center;">
-                                <div style="flex: 1; position: relative;">
-                                    <input type="text" id="feedSearchInput" placeholder="Поиск постов, людей, хештегов..." 
-                                        style="width: 100%; padding: 12px 16px 12px 44px; border: 1px solid var(--border); border-radius: 25px; font-size: 14px; outline: none; background: var(--bg-card); color: var(--text);"
-                                        oninput="handleFeedSearch(this.value)">
-                                    <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
-                                </div>
-                                <button class="btn btn-primary" onclick="showSection('profile')" style="white-space: nowrap;">
-                                    <i class="fas fa-plus"></i> Создать пост
-                                </button>
+                            <div style="position: relative;">
+                                <input type="text" id="feedSearchInput" placeholder="Поиск постов, людей, хештегов..." 
+                                    style="width: 100%; padding: 12px 16px 12px 44px; border: 1px solid var(--border); border-radius: 25px; font-size: 14px; outline: none; background: var(--bg-card); color: var(--text);"
+                                    oninput="handleFeedSearch(this.value)">
+                                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
                             </div>
                         </div>
                     </div>
@@ -1425,11 +1468,10 @@
                     <!-- Posts Feed -->
                     <div id="postsFeed"></div>
                     
-                    <!-- Load More -->
-                    <div style="text-align: center; padding: 20px;">
-                        <button class="btn btn-secondary" onclick="loadMorePosts()" id="loadMoreBtn">
-                            <i class="fas fa-sync-alt"></i> Загрузить ещё
-                        </button>
+                    <!-- Loading indicator for infinite scroll -->
+                    <div id="feedLoading" style="text-align: center; padding: 20px; display: none;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                        <p style="margin-top: 8px; color: var(--text-secondary);">Загрузка...</p>
                     </div>
                 </div>
 
@@ -2020,14 +2062,18 @@
         function setThemeByTime() {
             const hour = new Date().getHours();
             // Dark theme from 20:00 (8 PM) to 7:00 (7 AM)
-            if (hour >= 20 || hour < 7) {
-                document.body.classList.add('dark-theme');
-            } else {
-                document.body.classList.remove('dark-theme');
+            const isDark = hour >= 20 || hour < 7;
+            
+            document.body.classList.toggle('dark-theme', isDark);
+            
+            // Update meta theme color
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) {
+                metaTheme.content = isDark ? '#0f172a' : '#6366f1';
             }
             
-            // Check every hour
-            setTimeout(setThemeByTime, 3600000);
+            // Check every 10 minutes
+            setTimeout(setThemeByTime, 600000);
         }
 
         function handleHashChange() {
@@ -2229,26 +2275,51 @@
         }
 
         function updateUserUI() {
-            document.getElementById('headerAvatar').src = currentUser.avatar;
-            document.getElementById('headerName').textContent = currentUser.name;
-            document.getElementById('createPostAvatar').src = currentUser.avatar;
+            const headerAvatar = document.getElementById('headerAvatar');
+            const headerName = document.getElementById('headerName');
+            const profileCreateAvatar = document.getElementById('profileCreateAvatar');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const profileName = document.getElementById('profileName');
+            const profileUsername = document.getElementById('profileUsername');
+            const profileBio = document.getElementById('profileBio');
+            const profileCover = document.getElementById('profileCover');
+            const settingsName = document.getElementById('settingsName');
+            const settingsBio = document.getElementById('settingsBio');
             
-            document.getElementById('profileAvatar').src = currentUser.avatar;
-            document.getElementById('profileName').textContent = currentUser.name;
-            document.getElementById('profileUsername').textContent = '@' + currentUser.username;
-            document.getElementById('profileBio').textContent = currentUser.bio || 'Нет описания';
+            if (headerAvatar) headerAvatar.src = currentUser.avatar || 'https://i.pravatar.cc/100';
+            if (headerName) headerName.textContent = currentUser.name;
+            if (profileCreateAvatar) profileCreateAvatar.src = currentUser.avatar || 'https://i.pravatar.cc/100';
+            if (profileAvatar) profileAvatar.src = currentUser.avatar || 'https://i.pravatar.cc/100';
+            if (profileName) profileName.textContent = currentUser.name;
+            if (profileUsername) profileUsername.textContent = '@' + currentUser.username;
+            if (profileBio) profileBio.textContent = currentUser.bio || 'Нет описания';
+            if (profileCover && currentUser.cover) profileCover.src = currentUser.cover;
+            if (settingsName) settingsName.value = currentUser.name;
+            if (settingsBio) settingsBio.value = currentUser.bio || '';
             
             // Show badges
             const badgeContainer = document.getElementById('profileBadge');
-            badgeContainer.innerHTML = '';
-            if (currentUser.superVerified) {
-                badgeContainer.innerHTML = '<span class="verified-badge super-verified-badge" title="Создатель"><i class="fas fa-star"></i></span>';
-            } else if (currentUser.verified) {
-                badgeContainer.innerHTML = '<span class="verified-badge" title="Верифицирован"><i class="fas fa-check"></i></span>';
+            if (badgeContainer) {
+                badgeContainer.innerHTML = '';
+                if (currentUser.superVerified) {
+                    badgeContainer.innerHTML = '<span class="verified-badge super-verified-badge" title="Создатель"><i class="fas fa-star"></i></span>';
+                } else if (currentUser.verified) {
+                    badgeContainer.innerHTML = '<span class="verified-badge" title="Верифицирован"><i class="fas fa-check"></i></span>';
+                }
             }
 
             // Hide verification card if already verified
-            document.getElementById('verificationCard').style.display = currentUser.verified ? 'none' : 'block';
+            const verificationCard = document.getElementById('verificationCard');
+            if (verificationCard) {
+                verificationCard.style.display = currentUser.verified ? 'none' : 'block';
+            }
+            
+            // Load user stats
+            db.ref('posts').orderByChild('authorId').equalTo(currentUser.id).once('value').then(snap => {
+                const count = snap.numChildren();
+                const el = document.getElementById('profilePosts');
+                if (el) el.textContent = count;
+            });
         }
 
         function checkUsername() {
@@ -2305,16 +2376,19 @@
         // Posts Functions
         let postsLoaded = 0;
         const POSTS_PER_PAGE = 20;
+        let isLoadingPosts = false;
+        let allPostsLoaded = false;
         
         function loadFeed() {
             const feedEl = document.getElementById('postsFeed');
             postsLoaded = POSTS_PER_PAGE;
+            allPostsLoaded = false;
             
             db.ref('posts').orderByChild('createdAt').limitToLast(POSTS_PER_PAGE).on('value', snapshot => {
                 const posts = [];
                 snapshot.forEach(child => {
                     const post = child.val();
-                    if (post && post.authorName) { // Filter out broken posts
+                    if (post && post.authorName && !post.pending) {
                         posts.push({...post, id: child.key});
                     }
                 });
@@ -2335,20 +2409,39 @@
                     feedEl.innerHTML = posts.map(post => renderPost(post)).join('');
                 }
                 
-                // Update load more button
-                const loadMoreBtn = document.getElementById('loadMoreBtn');
-                if (loadMoreBtn) {
-                    loadMoreBtn.style.display = posts.length >= POSTS_PER_PAGE ? 'inline-flex' : 'none';
+                if (posts.length < POSTS_PER_PAGE) {
+                    allPostsLoaded = true;
                 }
             });
+            
+            // Setup infinite scroll
+            setupInfiniteScroll();
+        }
+        
+        function setupInfiniteScroll() {
+            window.removeEventListener('scroll', handleScroll);
+            window.addEventListener('scroll', handleScroll);
+        }
+        
+        function handleScroll() {
+            if (isLoadingPosts || allPostsLoaded) return;
+            
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+            
+            // Load more when 200px from bottom
+            if (scrollTop + clientHeight >= scrollHeight - 200) {
+                loadMorePosts();
+            }
         }
         
         function loadMorePosts() {
-            const feedEl = document.getElementById('postsFeed');
-            const btn = document.getElementById('loadMoreBtn');
+            if (isLoadingPosts || allPostsLoaded) return;
             
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+            isLoadingPosts = true;
+            const loadingEl = document.getElementById('feedLoading');
+            if (loadingEl) loadingEl.style.display = 'block';
             
             postsLoaded += POSTS_PER_PAGE;
             
@@ -2356,20 +2449,20 @@
                 const posts = [];
                 snapshot.forEach(child => {
                     const post = child.val();
-                    if (post && post.authorName) {
+                    if (post && post.authorName && !post.pending) {
                         posts.push({...post, id: child.key});
                     }
                 });
                 posts.reverse();
                 
+                const feedEl = document.getElementById('postsFeed');
                 feedEl.innerHTML = posts.map(post => renderPost(post)).join('');
                 
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Загрузить ещё';
+                isLoadingPosts = false;
+                if (loadingEl) loadingEl.style.display = 'none';
                 
-                // Hide if no more posts
                 if (posts.length < postsLoaded) {
-                    btn.style.display = 'none';
+                    allPostsLoaded = true;
                 }
             });
         }
@@ -2379,6 +2472,7 @@
             const isLiked = post.likes && post.likes[currentUser.id];
             const likesCount = post.likes ? Object.keys(post.likes).length : 0;
             const commentsCount = post.comments ? Object.keys(post.comments).length : 0;
+            const isBookmarked = currentUser.bookmarks && currentUser.bookmarks[post.id];
             
             // Process hashtags
             let text = post.text || '';
@@ -2409,16 +2503,17 @@
             }
 
             return `
-                <article class="card post">
+                <article class="card post" id="post-${post.id}">
+                    ${post.repostedFrom ? `<div style="padding: 8px 16px; font-size: 12px; color: var(--text-secondary); border-bottom: 1px solid var(--border);"><i class="fas fa-retweet"></i> Репост от @${post.repostedFrom}</div>` : ''}
                     <div class="post-header">
-                        <img src="${post.authorAvatar}" class="post-avatar" onclick="viewProfile('${post.authorId}')">
+                        <img src="${post.authorAvatar}" class="post-avatar" onclick="viewProfile('${post.authorId}')" onerror="this.src='https://i.pravatar.cc/100'">
                         <div class="post-info">
                             <div class="post-author" onclick="viewProfile('${post.authorId}')">
                                 ${post.authorName} ${badgeHtml}
                             </div>
                             <div class="post-time">${time}</div>
                         </div>
-                        <button class="post-menu" onclick="showPostMenu('${post.id}')">
+                        <button class="post-menu" onclick="showPostMenu('${post.id}', '${post.authorId}')">
                             <i class="fas fa-ellipsis-h"></i>
                         </button>
                     </div>
@@ -2430,9 +2525,9 @@
                             <i class="fas fa-heart"></i>
                             <span>${likesCount}</span>
                         </button>
-                        <button class="post-action" onclick="showComments('${post.id}')">
+                        <button class="post-action" onclick="toggleComments('${post.id}')">
                             <i class="fas fa-comment"></i>
-                            <span>${commentsCount}</span>
+                            <span id="comments-count-${post.id}">${commentsCount}</span>
                         </button>
                         <button class="post-action" onclick="repostPost('${post.id}')">
                             <i class="fas fa-retweet"></i>
@@ -2441,11 +2536,26 @@
                         <button class="post-action" onclick="sharePost('${post.id}')" title="Поделиться">
                             <i class="fas fa-share-alt"></i>
                         </button>
-                        <button class="post-action ${post.bookmarked ? 'liked' : ''}" onclick="bookmarkPost('${post.id}')" title="В закладки">
+                        <button class="post-action ${isBookmarked ? 'liked' : ''}" onclick="bookmarkPost('${post.id}')" title="В закладки">
                             <i class="fas fa-bookmark"></i>
                         </button>
                     </div>
-                    ${post.repostedFrom ? '<div style="padding: 8px 16px; font-size: 12px; color: var(--text-secondary);"><i class="fas fa-retweet"></i> Репост от @' + post.repostedFrom + '</div>' : ''}
+                    <!-- Комментарии под постом (как в ВК) -->
+                    <div class="post-comments" id="comments-${post.id}" style="display: none; border-top: 1px solid var(--border);">
+                        <div class="comments-list" id="comments-list-${post.id}" style="max-height: 300px; overflow-y: auto;"></div>
+                        <div style="display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); align-items: center;">
+                            <img src="${currentUser?.avatar || 'https://i.pravatar.cc/100'}" style="width: 32px; height: 32px; border-radius: 50%;">
+                            <input type="text" placeholder="Написать комментарий..." id="comment-input-${post.id}" 
+                                style="flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 20px; outline: none; font-size: 13px;"
+                                onkeypress="if(event.key==='Enter')submitCommentInline('${post.id}')">
+                            <button onclick="recordVoiceComment('${post.id}')" style="background: none; border: none; cursor: pointer; color: var(--primary); font-size: 18px;" title="Голосовой комментарий">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button onclick="submitCommentInline('${post.id}')" style="background: var(--primary); border: none; cursor: pointer; color: white; width: 32px; height: 32px; border-radius: 50%; font-size: 14px;">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
                 </article>
             `;
         }
@@ -3109,128 +3219,112 @@
         }
 
         // Post actions
-        function showPostMenu(postId) {
-            if (confirm('Удалить пост?')) {
-                db.ref('posts/' + postId).remove();
+        function showPostMenu(postId, authorId) {
+            const isOwner = currentUser && authorId === currentUser.id;
+            
+            const actions = [];
+            if (isOwner) {
+                actions.push({ text: 'Удалить пост', action: () => { db.ref('posts/' + postId).remove(); showToast('Удалено', 'Пост удалён', 'success'); } });
             }
+            actions.push({ text: 'Пожаловаться', action: () => { db.ref('reports').push({ postId, reporterId: currentUser.id, createdAt: Date.now() }); showToast('Отправлено', 'Жалоба отправлена', 'info'); } });
+            actions.push({ text: 'Скопировать ссылку', action: () => sharePost(postId) });
+            
+            const menu = document.createElement('div');
+            menu.className = 'post-menu-dropdown';
+            menu.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 1001; min-width: 200px; overflow: hidden;';
+            menu.innerHTML = actions.map(a => `<div style="padding: 14px 20px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--border);" onmouseover="this.style.background='#f5f7fa'" onmouseout="this.style.background='white'">${a.text}</div>`).join('') + `<div style="padding: 14px 20px; cursor: pointer; text-align: center; color: var(--text-secondary);" onclick="this.parentElement.remove()">Отмена</div>`;
+            
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;';
+            overlay.onclick = () => { overlay.remove(); menu.remove(); };
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(menu);
+            
+            menu.querySelectorAll('div').forEach((div, i) => {
+                if (actions[i]) {
+                    div.onclick = () => { actions[i].action(); overlay.remove(); menu.remove(); };
+                }
+            });
         }
 
-        function showComments(postId) {
-            // Open comments modal
-            openCommentsModal(postId);
-        }
-        
-        function openCommentsModal(postId) {
-            // Create or show comments modal
-            let modal = document.getElementById('commentsModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'commentsModal';
-                modal.className = 'modal-overlay';
-                modal.innerHTML = `
-                    <div class="modal" style="max-width: 550px;">
-                        <div class="modal-header">
-                            <h2>Комментарии</h2>
-                            <button class="modal-close" onclick="closeModal('commentsModal')"><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="modal-body" style="max-height: 400px; overflow-y: auto; padding: 0;">
-                            <div id="commentsList" style="padding: 16px;"></div>
-                        </div>
-                        <div style="padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end;">
-                            <img id="commentAvatar" src="" style="width: 36px; height: 36px; border-radius: 50%;">
-                            <div style="flex: 1; position: relative;">
-                                <textarea id="commentInput" placeholder="Написать комментарий..." rows="2" 
-                                    style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 12px; resize: none; font-family: inherit; font-size: 14px;"></textarea>
-                            </div>
-                            <button class="btn btn-secondary" onclick="recordVoiceComment(currentCommentPostId)" title="Голосовой комментарий" style="padding: 10px;">
-                                <i class="fas fa-microphone"></i>
-                            </button>
-                            <button class="btn btn-primary" onclick="submitComment()" style="padding: 10px 16px;">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
+        function toggleComments(postId) {
+            const commentsDiv = document.getElementById('comments-' + postId);
+            const isVisible = commentsDiv.style.display !== 'none';
+            
+            if (isVisible) {
+                commentsDiv.style.display = 'none';
+            } else {
+                commentsDiv.style.display = 'block';
+                loadCommentsInline(postId);
             }
-            
-            window.currentCommentPostId = postId;
-            document.getElementById('commentAvatar').src = currentUser?.avatar || 'https://i.pravatar.cc/100';
-            document.getElementById('commentInput').value = '';
-            
-            // Load comments
-            loadCommentsForPost(postId);
-            
-            modal.classList.add('active');
         }
         
-        function loadCommentsForPost(postId) {
-            const container = document.getElementById('commentsList');
+        function loadCommentsInline(postId) {
+            const container = document.getElementById('comments-list-' + postId);
             
             db.ref('posts/' + postId + '/comments').orderByChild('createdAt').on('value', snapshot => {
                 let html = '';
-                const comments = [];
+                let count = 0;
                 
                 snapshot.forEach(child => {
-                    comments.push({...child.val(), id: child.key});
+                    count++;
+                    const comment = child.val();
+                    const time = new Date(comment.createdAt).toLocaleString('ru-RU');
+                    const isOwner = comment.authorId === currentUser?.id;
+                    
+                    if (comment.voiceMessage) {
+                        html += `
+                            <div style="display: flex; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                                <img src="${comment.authorAvatar || 'https://i.pravatar.cc/100'}" style="width: 32px; height: 32px; border-radius: 50%;" onerror="this.src='https://i.pravatar.cc/100'">
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; font-size: 13px; color: var(--text);">${comment.authorName}</div>
+                                    <div class="voice-message" style="margin-top: 6px; padding: 8px 12px;" data-audio="${comment.voiceMessage}">
+                                        <button class="voice-play" onclick="playVoiceMessage(this)" style="width: 28px; height: 28px; font-size: 11px;">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <div class="voice-waveform" style="height: 20px;">
+                                            ${Array(10).fill(0).map(() => `<div class="voice-bar" style="height: ${20 + Math.random() * 80}%"></div>`).join('')}
+                                        </div>
+                                        <span class="voice-time">0:${Math.floor(Math.random() * 20 + 5)}</span>
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">${time} ${isOwner ? '<span onclick="deleteComment(\\''+postId+'\\', \\''+child.key+'\\')\" style="cursor: pointer; color: var(--danger); margin-left: 8px;">Удалить</span>' : ''}</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div style="display: flex; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                                <img src="${comment.authorAvatar || 'https://i.pravatar.cc/100'}" style="width: 32px; height: 32px; border-radius: 50%;" onerror="this.src='https://i.pravatar.cc/100'">
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; font-size: 13px; color: var(--text);">${comment.authorName}</div>
+                                    <div style="font-size: 13px; color: var(--text); margin-top: 2px; line-height: 1.4;">${comment.text}</div>
+                                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">${time} ${isOwner ? `<span onclick="deleteComment('${postId}', '${child.key}')" style="cursor: pointer; color: var(--danger); margin-left: 8px;">Удалить</span>` : ''}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
                 });
                 
-                if (comments.length === 0) {
-                    html = '<p style="color: var(--text-secondary); text-align: center; padding: 24px;">Пока нет комментариев. Будьте первым!</p>';
-                } else {
-                    comments.forEach(comment => {
-                        const time = new Date(comment.createdAt).toLocaleString('ru-RU');
-                        
-                        if (comment.voiceMessage) {
-                            html += `
-                                <div style="display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border);">
-                                    <img src="${comment.authorAvatar || 'https://i.pravatar.cc/100'}" style="width: 36px; height: 36px; border-radius: 50%;">
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 600; font-size: 14px; color: var(--text);">${comment.authorName}</div>
-                                        <div class="voice-message" style="margin-top: 8px; padding: 10px 14px;" data-audio="${comment.voiceMessage}">
-                                            <button class="voice-play" onclick="playVoiceMessage(this)" style="width: 32px; height: 32px; font-size: 12px;">
-                                                <i class="fas fa-play"></i>
-                                            </button>
-                                            <div class="voice-waveform" style="height: 24px;">
-                                                ${Array(12).fill(0).map(() => `<div class="voice-bar" style="height: ${20 + Math.random() * 80}%"></div>`).join('')}
-                                            </div>
-                                            <span class="voice-time">0:${Math.floor(Math.random() * 20 + 5)}</span>
-                                        </div>
-                                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${time}</div>
-                                    </div>
-                                </div>
-                            `;
-                        } else {
-                            html += `
-                                <div style="display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border);">
-                                    <img src="${comment.authorAvatar || 'https://i.pravatar.cc/100'}" style="width: 36px; height: 36px; border-radius: 50%;">
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 600; font-size: 14px; color: var(--text);">${comment.authorName}</div>
-                                        <div style="font-size: 14px; color: var(--text); margin-top: 4px; line-height: 1.4;">${comment.text}</div>
-                                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${time}</div>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    });
-                }
+                container.innerHTML = html || '<p style="padding: 16px; color: var(--text-secondary); text-align: center;">Нет комментариев</p>';
                 
-                container.innerHTML = html;
+                // Update count
+                const countEl = document.getElementById('comments-count-' + postId);
+                if (countEl) countEl.textContent = count;
             });
         }
         
-        function submitComment() {
-            const input = document.getElementById('commentInput');
+        function submitCommentInline(postId) {
+            const input = document.getElementById('comment-input-' + postId);
             const text = input.value.trim();
             
-            if (!text || !currentCommentPostId) return;
-            
+            if (!text) return;
             if (isReadOnly) {
                 showToast('Ошибка', 'Режим только чтение', 'error');
                 return;
             }
             
-            db.ref('posts/' + currentCommentPostId + '/comments').push({
+            db.ref('posts/' + postId + '/comments').push({
                 text,
                 authorId: currentUser.id,
                 authorName: currentUser.name,
@@ -3239,8 +3333,16 @@
             });
             
             input.value = '';
-            showToast('Комментарий', 'Комментарий добавлен', 'success');
         }
+        
+        function deleteComment(postId, commentId) {
+            if (confirm('Удалить комментарий?')) {
+                db.ref('posts/' + postId + '/comments/' + commentId).remove();
+                showToast('Удалено', 'Комментарий удалён', 'success');
+            }
+        }
+        
+        // Comments are now inline under posts (VK style)
 
         function sharePost(postId) {
             const url = window.location.origin + window.location.pathname + '#post_' + postId;
@@ -3262,8 +3364,25 @@
         }
 
         function bookmarkPost(postId) {
-            db.ref('bookmarks/' + currentUser.id + '/' + postId).set(true);
-            alert('Добавлено в закладки!');
+            const bookmarkRef = db.ref('bookmarks/' + currentUser.id + '/' + postId);
+            
+            bookmarkRef.once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    bookmarkRef.remove();
+                    showToast('Закладки', 'Удалено из закладок', 'info');
+                    
+                    // Update UI
+                    const btn = document.querySelector(`#post-${postId} .post-action:last-child`);
+                    if (btn) btn.classList.remove('liked');
+                } else {
+                    bookmarkRef.set(true);
+                    showToast('Закладки', 'Добавлено в закладки', 'success');
+                    
+                    // Update UI
+                    const btn = document.querySelector(`#post-${postId} .post-action:last-child`);
+                    if (btn) btn.classList.add('liked');
+                }
+            });
         }
 
         // Settings
@@ -3862,6 +3981,151 @@
         };
         
         // ============ LOAD ADDITIONAL DATA ============
+        function loadCommunities() {
+            const container = document.getElementById('communitiesList');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f5f7fa; border-radius: 12px;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Программисты</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">15.2K участников</div>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Вступить</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f5f7fa; border-radius: 12px;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #f093fb, #f5576c); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Меломаны</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">8.5K участников</div>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Вступить</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f5f7fa; border-radius: 12px;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Геймеры</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">25.8K участников</div>
+                        </div>
+                        <button class="btn btn-primary btn-sm">Вступить</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadPhotos() {
+            const container = document.getElementById('photosList');
+            if (!container) return;
+            
+            // Load user photos from posts
+            db.ref('posts').orderByChild('authorId').equalTo(currentUser?.id).once('value').then(snapshot => {
+                let html = '';
+                snapshot.forEach(child => {
+                    const post = child.val();
+                    if (post.image) {
+                        html += `<img src="${post.image}" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer;" onclick="viewImage('${post.image}')">`;
+                    }
+                });
+                container.innerHTML = html || '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 20px;">Нет фотографий</p>';
+            });
+        }
+        
+        function uploadPhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function() {
+                if (this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        db.ref('posts').push({
+                            image: e.target.result,
+                            text: '',
+                            authorId: currentUser.id,
+                            authorName: currentUser.name,
+                            authorAvatar: currentUser.avatar,
+                            authorVerified: currentUser.verified || false,
+                            authorSuperVerified: currentUser.superVerified || false,
+                            createdAt: Date.now()
+                        });
+                        showToast('Фото загружено', 'Фото добавлено в ленту', 'success');
+                        loadPhotos();
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            };
+            input.click();
+        }
+        
+        function loadMusic() {
+            const container = document.getElementById('musicList');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <i class="fas fa-music" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+                    <h3 style="color: var(--text); margin-bottom: 8px;">Музыка скоро появится</h3>
+                    <p style="color: var(--text-secondary);">Мы работаем над добавлением музыки</p>
+                </div>
+            `;
+        }
+        
+        function openNewChatModal() {
+            // Show list of users to start chat
+            let modal = document.getElementById('newChatModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'newChatModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h2>Новый чат</h2>
+                            <button class="modal-close" onclick="closeModal('newChatModal')"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body" id="newChatUsersList"></div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            
+            const list = document.getElementById('newChatUsersList');
+            list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Загрузка...</p>';
+            
+            db.ref('users').limitToFirst(20).once('value').then(snapshot => {
+                let html = '';
+                snapshot.forEach(child => {
+                    if (child.key !== currentUser?.id) {
+                        const user = child.val();
+                        if (user && user.name) {
+                            html += `
+                                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border-radius: 8px; transition: background 0.2s;" 
+                                    onmouseover="this.style.background='#f5f7fa'" onmouseout="this.style.background='transparent'"
+                                    onclick="startChatWith('${child.key}'); closeModal('newChatModal')">
+                                    <img src="${user.avatar || 'https://i.pravatar.cc/100'}" style="width: 44px; height: 44px; border-radius: 50%;">
+                                    <div>
+                                        <div style="font-weight: 600;">${user.name}</div>
+                                        <div style="font-size: 13px; color: var(--text-secondary);">@${user.username || 'user'}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                });
+                list.innerHTML = html || '<p style="text-align: center; color: var(--text-secondary);">Нет пользователей</p>';
+            });
+            
+            modal.classList.add('active');
+        }
+        
         function loadFullNotifications() {
             const list = document.getElementById('notificationsFullList');
             if (!list) return;
@@ -3884,23 +4148,68 @@
             });
         }
         
-        // Update loginSuccess
-        const originalLoginSuccess = loginSuccess;
-        loginSuccess = function() {
-            originalLoginSuccess();
+        // Extend loginSuccess
+        const extendLoginSuccess = function() {
             loadNotifSettings();
             loadProfileTelegramWidget();
             loadFullNotifications();
             listenForCalls();
+            loadCommunities();
+            loadPhotos();
+            loadMusic();
             
-            // Update mobile badges
+            // Update badges
             db.ref('notifications/' + currentUser.id).on('value', snapshot => {
                 let count = 0;
                 snapshot.forEach(child => { if (!child.val().read) count++; });
+                
                 const badge = document.getElementById('mobileNotifBadge');
-                badge.textContent = count;
-                badge.style.display = count > 0 ? 'block' : 'none';
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = count > 0 ? 'block' : 'none';
+                }
+                
+                const notifBadge = document.getElementById('notifBadge');
+                if (notifBadge) {
+                    notifBadge.textContent = count;
+                    notifBadge.style.display = count > 0 ? 'block' : 'none';
+                }
             });
+            
+            // Load unread messages count
+            db.ref('chats').orderByChild('participants/' + currentUser.id).equalTo(true).on('value', snapshot => {
+                let unreadCount = 0;
+                snapshot.forEach(child => {
+                    const chat = child.val();
+                    if (chat.unread && chat.unread[currentUser.id]) {
+                        unreadCount += chat.unread[currentUser.id];
+                    }
+                });
+                
+                const msgBadge = document.getElementById('msgBadge');
+                const mobileMsgBadge = document.getElementById('mobileMsgBadge');
+                const sidebarMsgBadge = document.getElementById('sidebarMsgBadge');
+                
+                if (msgBadge) {
+                    msgBadge.textContent = unreadCount;
+                    msgBadge.style.display = unreadCount > 0 ? 'block' : 'none';
+                }
+                if (mobileMsgBadge) {
+                    mobileMsgBadge.textContent = unreadCount;
+                    mobileMsgBadge.style.display = unreadCount > 0 ? 'block' : 'none';
+                }
+                if (sidebarMsgBadge) {
+                    sidebarMsgBadge.textContent = unreadCount;
+                    sidebarMsgBadge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                }
+            });
+        };
+        
+        // Call after original loginSuccess
+        const origLoginSuccess = loginSuccess;
+        loginSuccess = function() {
+            origLoginSuccess();
+            setTimeout(extendLoginSuccess, 100);
         };
         
         // Listen for real-time notifications
