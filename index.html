@@ -1226,12 +1226,30 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
+    <!-- Loading Screen - автоскрытие через CSS анимацию -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-logo"><i class="fas fa-layer-group"></i>ЧегоСтена</div>
         <div class="loading-spinner"></div>
         <div class="loading-text">Загрузка...</div>
     </div>
+    <style>
+        /* ГАРАНТИРОВАННОЕ скрытие загрузки через 2 секунды на ЧИСТОМ CSS */
+        #loadingScreen {
+            animation: hideLoading 0.5s ease-out 2s forwards !important;
+        }
+        @keyframes hideLoading {
+            0% { opacity: 1; visibility: visible; }
+            99% { opacity: 0; visibility: visible; }
+            100% { opacity: 0; visibility: hidden; pointer-events: none; z-index: -1; }
+        }
+    </style>
+    <script>
+        // Дополнительная гарантия на JS - скрыть через 2.5 секунды
+        setTimeout(function() {
+            var ls = document.getElementById('loadingScreen');
+            if (ls) { ls.style.display = 'none'; ls.remove(); }
+        }, 2500);
+    </script>
 
     <!-- Auth Screen -->
     <div id="authScreen" class="auth-screen active">
